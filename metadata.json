@@ -1,0 +1,6 @@
+{
+  "name": "SynergyFit",
+  "description": "Una aplicación minimalista de fitness y nutrición optimizada para pantallas AMOLED con entrenador de IA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,54 @@
+package com.example
+
+import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProvider
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.RemoteViews
+
+class MealWidget : AppWidgetProvider() {
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        for (appWidgetId in appWidgetIds) {
+            updateAppWidget(context, appWidgetManager, appWidgetId)
+        }
+    }
+
+    private fun updateAppWidget(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int
+    ) {
+        val views = RemoteViews(context.packageName, R.layout.widget_meal_layout)
+
+        // Set pending intents for category deep link buttons
+        views.setOnClickPendingIntent(R.id.btn_breakfast, getPendingIntentForCategory(context, "Desayuno", 101))
+        views.setOnClickPendingIntent(R.id.btn_lunch, getPendingIntentForCategory(context, "Almuerzo", 102))
+        views.setOnClickPendingIntent(R.id.btn_dinner, getPendingIntentForCategory(context, "Cena", 103))
+        views.setOnClickPendingIntent(R.id.btn_snack, getPendingIntentForCategory(context, "Snack", 104))
+
+        appWidgetManager.updateAppWidget(appWidgetId, views)
+    }
+
+    private fun getPendingIntentForCategory(context: Context, categoryName: String, requestCode: Int): PendingIntent {
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("synergyfit://add-meal?category=$categoryName")
+        ).apply {
+            setClass(context, MainActivity::class.java)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+
+        return PendingIntent.getActivity(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+}
