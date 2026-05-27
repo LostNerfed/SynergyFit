@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,6 +56,18 @@ class MainActivity : ComponentActivity() {
 
                 val mealCategory = activeMealDetailCategory
                 val mealDate = activeMealDetailDate
+
+                // Handle system back button for all navigation states
+                BackHandler(enabled = isSettingsOpen) {
+                    isSettingsOpen = false
+                }
+                BackHandler(enabled = mealCategory != null) {
+                    activeMealDetailCategory = null
+                    activeMealDetailDate = null
+                }
+                BackHandler(enabled = currentMainTab != "home" && mealCategory == null && !isSettingsOpen && activeSession == null) {
+                    currentMainTab = "home"
+                }
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -97,80 +111,85 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             containerColor = AmoledBg,
                             bottomBar = {
-                                NavigationBar(
-                                    containerColor = AmoledSurface,
-                                    tonalElevation = 0.dp,
+                                Surface(
+                                    color = Color.Black,
+                                    shape = RoundedCornerShape(16.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderColor),
                                     modifier = Modifier
                                         .navigationBarsPadding()
                                         .padding(horizontal = 12.dp, vertical = 8.dp)
-                                        .border(width = 1.dp, color = BorderColor, shape = RoundedCornerShape(16.dp)),
-                                    windowInsets = WindowInsets(0.dp)
                                 ) {
-                                    NavigationBarItem(
-                                        selected = currentMainTab == "home",
-                                        onClick = { currentMainTab = "home" },
-                                        icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Inicio") },
-                                        label = { Text("Inicio", fontSize = 10.sp) },
-                                        colors = NavigationBarItemDefaults.colors(
-                                            selectedIconColor = Color.Black,
-                                            unselectedIconColor = TextSecundario,
-                                            selectedTextColor = Color.White,
-                                            unselectedTextColor = TextSecundario,
-                                            indicatorColor = Color.White
+                                    NavigationBar(
+                                        containerColor = Color.Black,
+                                        tonalElevation = 0.dp,
+                                        windowInsets = WindowInsets(0.dp)
+                                    ) {
+                                        NavigationBarItem(
+                                            selected = currentMainTab == "home",
+                                            onClick = { currentMainTab = "home" },
+                                            icon = { Icon(imageVector = Icons.Default.Home, contentDescription = "Inicio") },
+                                            label = { Text("Inicio", fontSize = 10.sp) },
+                                            colors = NavigationBarItemDefaults.colors(
+                                                selectedIconColor = Color.White,
+                                                unselectedIconColor = TextSecundario,
+                                                selectedTextColor = Color.White,
+                                                unselectedTextColor = TextSecundario,
+                                                indicatorColor = Color.Transparent
+                                            )
                                         )
-                                    )
-                                    NavigationBarItem(
-                                        selected = currentMainTab == "nutrition",
-                                        onClick = { currentMainTab = "nutrition" },
-                                        icon = { Icon(imageVector = Icons.Default.RestaurantMenu, contentDescription = "Nutrición") },
-                                        label = { Text("Nutrición", fontSize = 10.sp) },
-                                        colors = NavigationBarItemDefaults.colors(
-                                            selectedIconColor = Color.Black,
-                                            unselectedIconColor = TextSecundario,
-                                            selectedTextColor = Color.White,
-                                            unselectedTextColor = TextSecundario,
-                                            indicatorColor = Color.White
+                                        NavigationBarItem(
+                                            selected = currentMainTab == "nutrition",
+                                            onClick = { currentMainTab = "nutrition" },
+                                            icon = { Icon(imageVector = Icons.Default.RestaurantMenu, contentDescription = "Nutrición") },
+                                            label = { Text("Nutrición", fontSize = 10.sp) },
+                                            colors = NavigationBarItemDefaults.colors(
+                                                selectedIconColor = Color.White,
+                                                unselectedIconColor = TextSecundario,
+                                                selectedTextColor = Color.White,
+                                                unselectedTextColor = TextSecundario,
+                                                indicatorColor = Color.Transparent
+                                            )
                                         )
-                                    )
-                                    NavigationBarItem(
-                                        selected = currentMainTab == "plan",
-                                        onClick = { currentMainTab = "plan" },
-                                        icon = { Icon(imageVector = Icons.Default.FitnessCenter, contentDescription = "Rutinas") },
-                                        label = { Text("Rutinas", fontSize = 10.sp) },
-                                        colors = NavigationBarItemDefaults.colors(
-                                            selectedIconColor = Color.Black,
-                                            unselectedIconColor = TextSecundario,
-                                            selectedTextColor = Color.White,
-                                            unselectedTextColor = TextSecundario,
-                                            indicatorColor = Color.White
+                                        NavigationBarItem(
+                                            selected = currentMainTab == "plan",
+                                            onClick = { currentMainTab = "plan" },
+                                            icon = { Icon(imageVector = Icons.Default.FitnessCenter, contentDescription = "Rutinas") },
+                                            label = { Text("Rutinas", fontSize = 10.sp) },
+                                            colors = NavigationBarItemDefaults.colors(
+                                                selectedIconColor = Color.White,
+                                                unselectedIconColor = TextSecundario,
+                                                selectedTextColor = Color.White,
+                                                unselectedTextColor = TextSecundario,
+                                                indicatorColor = Color.Transparent
+                                            )
                                         )
-                                    )
-                                    NavigationBarItem(
-                                        selected = currentMainTab == "progress",
-                                        onClick = { currentMainTab = "progress" },
-                                        icon = { Icon(imageVector = Icons.Default.ShowChart, contentDescription = "Progreso") },
-                                        label = { Text("Progreso", fontSize = 10.sp) },
-                                        colors = NavigationBarItemDefaults.colors(
-                                            selectedIconColor = Color.Black,
-                                            unselectedIconColor = TextSecundario,
-                                            selectedTextColor = Color.White,
-                                            unselectedTextColor = TextSecundario,
-                                            indicatorColor = Color.White
+                                        NavigationBarItem(
+                                            selected = currentMainTab == "progress",
+                                            onClick = { currentMainTab = "progress" },
+                                            icon = { Icon(imageVector = Icons.Default.ShowChart, contentDescription = "Progreso") },
+                                            label = { Text("Progreso", fontSize = 10.sp) },
+                                            colors = NavigationBarItemDefaults.colors(
+                                                selectedIconColor = Color.White,
+                                                unselectedIconColor = TextSecundario,
+                                                selectedTextColor = Color.White,
+                                                unselectedTextColor = TextSecundario,
+                                                indicatorColor = Color.Transparent
+                                            )
                                         )
-                                    )
-                                    NavigationBarItem(
-                                        selected = currentMainTab == "calendar",
-                                        onClick = { currentMainTab = "calendar" },
-                                        icon = { Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = "Calendario") },
-                                        label = { Text("Historial", fontSize = 10.sp) },
-                                        colors = NavigationBarItemDefaults.colors(
-                                            selectedIconColor = Color.Black,
-                                            unselectedIconColor = TextSecundario,
-                                            selectedTextColor = Color.White,
-                                            unselectedTextColor = TextSecundario,
-                                            indicatorColor = Color.White
+                                        NavigationBarItem(
+                                            selected = currentMainTab == "calendar",
+                                            onClick = { currentMainTab = "calendar" },
+                                            icon = { Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = "Historial") },
+                                            label = { Text("Historial", fontSize = 10.sp, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) },
+                                            colors = NavigationBarItemDefaults.colors(
+                                                selectedIconColor = Color.White,
+                                                unselectedIconColor = TextSecundario,
+                                                selectedTextColor = Color.White,
+                                                unselectedTextColor = TextSecundario,
+                                                indicatorColor = Color.Transparent
+                                            )
                                         )
-                                    )
+                                    }
                                 }
                             }
                         ) { innerPadding ->

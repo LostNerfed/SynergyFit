@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -73,6 +75,10 @@ fun ActiveWorkoutScreen(
     // Group logs by exercise name
     val groupedLogs = remember(activeLogs) {
         activeLogs.groupBy { it.exerciseName }
+    }
+
+    BackHandler {
+        showDiscardDialog = true
     }
 
     Scaffold(
@@ -159,6 +165,7 @@ fun ActiveWorkoutScreen(
                                             if (isSelected) Color.White else BorderColor,
                                             RoundedCornerShape(8.dp)
                                         )
+                                        .clip(RoundedCornerShape(8.dp))
                                         .clickable { backdateOffsetDays = offset }
                                         .padding(vertical = 10.dp),
                                     contentAlignment = Alignment.Center
@@ -406,6 +413,7 @@ fun ActiveWorkoutScreen(
                         Text(text = "Volver", color = Color.White)
                     }
                 },
+                shape = RoundedCornerShape(20.dp),
                 containerColor = AmoledSurface,
                 titleContentColor = Color.White,
                 textContentColor = Color.White
@@ -435,6 +443,7 @@ fun ActiveWorkoutScreen(
                         Text(text = "Corregir", color = TextSecundario)
                     }
                 },
+                shape = RoundedCornerShape(20.dp),
                 containerColor = AmoledSurface,
                 titleContentColor = Color.White,
                 textContentColor = Color.White
@@ -488,6 +497,7 @@ fun ActiveWorkoutScreen(
                                             RoundedCornerShape(8.dp)
                                         )
                                         .background(if (searchInSuperior) BorderColorSubtle else Color.Transparent)
+                                    .clip(RoundedCornerShape(8.dp))
                                     .clickable { searchInSuperior = true }
                                     .padding(vertical = 8.dp),
                                 contentAlignment = Alignment.Center
@@ -503,6 +513,7 @@ fun ActiveWorkoutScreen(
                                             RoundedCornerShape(8.dp)
                                         )
                                         .background(if (!searchInSuperior) BorderColorSubtle else Color.Transparent)
+                                    .clip(RoundedCornerShape(8.dp))
                                     .clickable { searchInSuperior = false }
                                     .padding(vertical = 8.dp),
                                 contentAlignment = Alignment.Center
@@ -524,6 +535,7 @@ fun ActiveWorkoutScreen(
                                             modifier = Modifier
                                                 .background(BorderColorSubtle, RoundedCornerShape(8.dp))
                                                 .border(1.dp, BorderColor, RoundedCornerShape(8.dp))
+                                                .clip(RoundedCornerShape(8.dp))
                                                 .clickable { tempAddExerciseName = exObj.name }
                                                 .padding(horizontal = 10.dp, vertical = 6.dp)
                                         ) {
@@ -541,7 +553,7 @@ fun ActiveWorkoutScreen(
                         OutlinedTextField(
                             value = tempAddExerciseName,
                             onValueChange = { tempAddExerciseName = it },
-                            placeholder = { Text("Nombre del Ejercicio (Manual o Seleccionado)") },
+                            placeholder = { Text("Manual") },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -561,7 +573,6 @@ fun ActiveWorkoutScreen(
                                 val selectedCat = if (searchInSuperior) "Parte Superior" else "Parte Inferior"
                                 viewModel.addExerciseToActiveWorkout(tempAddExerciseName, selectedCat)
                                 tempAddExerciseName = ""
-                                showAddExerciseDialog = false
                             }
                         }
                     ) {
@@ -575,9 +586,10 @@ fun ActiveWorkoutScreen(
                             showAddExerciseDialog = false
                         }
                     ) {
-                        Text(text = "Cancelar", color = TextSecundario)
+                        Text(text = "Aplicar", color = TextSecundario)
                     }
                 },
+                shape = RoundedCornerShape(20.dp),
                 containerColor = AmoledSurface,
                 titleContentColor = Color.White,
                 textContentColor = Color.White

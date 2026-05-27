@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,12 +11,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +44,11 @@ fun PlanDaysScreen(
     var showCreateRoutineDialog by remember { mutableStateOf(false) }
     var activePlanTab by remember { mutableStateOf(0) } // 0 = Tutinas, 1 = Lista Madre de Ejercicios
     var showAddCustomExerciseDialog by remember { mutableStateOf(false) }
+
+    // Handle system back button when deep in routine details
+    BackHandler(enabled = selectedRoutineForModelDetails != null) {
+        selectedRoutineForModelDetails = null
+    }
 
     // Categorization logic helper
     val superiorExercises = remember(allExercises) {
@@ -245,7 +253,7 @@ fun PlanDaysScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .border(1.dp, BorderColorSubtle, RoundedCornerShape(10.dp))
-                                    .background(AmoledSurface)
+                                    .background(AmoledSurface, RoundedCornerShape(10.dp))
                                     .padding(horizontal = 14.dp, vertical = 10.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
@@ -293,7 +301,7 @@ fun PlanDaysScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .border(1.dp, BorderColorSubtle, RoundedCornerShape(10.dp))
-                                    .background(AmoledSurface)
+                                    .background(AmoledSurface, RoundedCornerShape(10.dp))
                                     .padding(horizontal = 14.dp, vertical = 10.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
@@ -320,27 +328,31 @@ fun PlanDaysScreen(
 
                 AlertDialog(
                     onDismissRequest = { showAddCustomExerciseDialog = false },
-                    title = { Text(text = "Nuevo Ejercicio", fontWeight = FontWeight.Bold) },
+                    shape = RoundedCornerShape(20.dp),
+                    title = { Text(text = "Nuevo Ejercicio", fontWeight = FontWeight.Bold, color = Color.White) },
                     text = {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Text(text = "Añade un ejercicio a tu lista general de entrenamiento para seleccionarlo luego.", fontSize = 11.sp, color = TextSecundario)
-                            
+                            Text(text = "Añade un ejercicio a tu lista general.", fontSize = 11.sp, color = TextSecundario)
+
                             OutlinedTextField(
                                 value = newExName,
                                 onValueChange = { newExName = it },
                                 label = { Text("Nombre del Ejercicio", color = TextSecundario) },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.White,
                                     unfocusedTextColor = Color.White,
                                     focusedBorderColor = Color.White,
                                     unfocusedBorderColor = BorderColor,
-                                    cursorColor = Color.White
+                                    cursorColor = Color.White,
+                                    focusedContainerColor = AmoledSurface,
+                                    unfocusedContainerColor = AmoledSurface
                                 )
                             )
 
-                            Text(text = "Clasificación/Grupo:", fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
+                            Text(text = "Grupo muscular:", fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -348,28 +360,19 @@ fun PlanDaysScreen(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .border(
-                                            1.dp, 
-                                            if (isSuperiorSelected) Color.White else BorderColor, 
-                                            RoundedCornerShape(8.dp)
-                                        )
-                                        .background(if (isSuperiorSelected) BorderColorSubtle else Color.Transparent)
+                                        .border(1.dp, if (isSuperiorSelected) Color.White else BorderColor, RoundedCornerShape(8.dp))
+                                        .background(if (isSuperiorSelected) Color.White.copy(alpha = 0.1f) else Color.Transparent, RoundedCornerShape(8.dp))
                                         .clickable { isSuperiorSelected = true }
                                         .padding(vertical = 10.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(text = "Parte Superior", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
                                 }
-
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .border(
-                                            1.dp, 
-                                            if (!isSuperiorSelected) Color.White else BorderColor, 
-                                            RoundedCornerShape(8.dp)
-                                        )
-                                        .background(if (!isSuperiorSelected) BorderColorSubtle else Color.Transparent)
+                                        .border(1.dp, if (!isSuperiorSelected) Color.White else BorderColor, RoundedCornerShape(8.dp))
+                                        .background(if (!isSuperiorSelected) Color.White.copy(alpha = 0.1f) else Color.Transparent, RoundedCornerShape(8.dp))
                                         .clickable { isSuperiorSelected = false }
                                         .padding(vertical = 10.dp),
                                     contentAlignment = Alignment.Center
@@ -535,31 +538,26 @@ fun PlanDaysScreen(
             if (showAddExerciseDialogInDetails) {
                 var searchInSuperior by remember { mutableStateOf(true) }
                 val targetList = if (searchInSuperior) superiorExercises else inferiorExercises
-
                 var tempExerciseName by remember { mutableStateOf("") }
                 var tempSetsCount by remember { mutableStateOf("3") }
 
                 AlertDialog(
                     onDismissRequest = { showAddExerciseDialogInDetails = false },
-                    title = { Text(text = "Añadir Ejercicio", fontWeight = FontWeight.Bold) },
+                    shape = RoundedCornerShape(20.dp),
+                    title = { Text(text = "Añadir Ejercicio", fontWeight = FontWeight.Bold, color = Color.White) },
                     text = {
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Text(text = "Selecciona de la lista o escribe de manera manual abajo:", fontSize = 11.sp, color = TextSecundario)
-                            
-                            // Category Selector
+                            // Category filter chips
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .border(
-                                            1.dp, 
-                                            if (searchInSuperior) Color.White else BorderColor, 
-                                            RoundedCornerShape(8.dp)
-                                        )
-                                        .background(if (searchInSuperior) BorderColorSubtle else Color.Transparent)
+                                        .border(1.dp, if (searchInSuperior) Color.White else BorderColor, RoundedCornerShape(8.dp))
+                                        .background(if (searchInSuperior) Color.White.copy(alpha = 0.1f) else Color.Transparent, RoundedCornerShape(8.dp))
+                                        .clip(RoundedCornerShape(8.dp))
                                         .clickable { searchInSuperior = true }
                                         .padding(vertical = 8.dp),
                                     contentAlignment = Alignment.Center
@@ -569,12 +567,9 @@ fun PlanDaysScreen(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .border(
-                                            1.dp, 
-                                            if (!searchInSuperior) Color.White else BorderColor, 
-                                            RoundedCornerShape(8.dp)
-                                        )
-                                        .background(if (!searchInSuperior) BorderColorSubtle else Color.Transparent)
+                                        .border(1.dp, if (!searchInSuperior) Color.White else BorderColor, RoundedCornerShape(8.dp))
+                                        .background(if (!searchInSuperior) Color.White.copy(alpha = 0.1f) else Color.Transparent, RoundedCornerShape(8.dp))
+                                        .clip(RoundedCornerShape(8.dp))
                                         .clickable { searchInSuperior = false }
                                         .padding(vertical = 8.dp),
                                     contentAlignment = Alignment.Center
@@ -583,88 +578,123 @@ fun PlanDaysScreen(
                                 }
                             }
 
-                            // Horizontal Quick Select of Exercises
+                            // Vertical exercise list (scrollable up to ~200dp)
                             if (targetList.isNotEmpty()) {
-                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    Text(text = "Tocar para seleccionar:", fontSize = 11.sp, color = TextSecundario)
-                                    androidx.compose.foundation.lazy.LazyRow(
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                        modifier = Modifier.fillMaxWidth()
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(max = 200.dp)
+                                        .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                                ) {
+                                    val listScroll = androidx.compose.foundation.rememberScrollState()
+                                    Column(
+                                        modifier = Modifier
+                                            .verticalScroll(listScroll)
+                                            .padding(vertical = 4.dp)
                                     ) {
-                                        items(targetList) { exObj ->
-                                            Box(
+                                        targetList.forEachIndexed { index, exObj ->
+                                            val isSelected = tempExerciseName == exObj.name
+                                            Row(
                                                 modifier = Modifier
-                                                    .background(BorderColorSubtle, RoundedCornerShape(8.dp))
-                                                    .border(1.dp, BorderColor, RoundedCornerShape(8.dp))
+                                                    .fillMaxWidth()
+                                                    .background(
+                                                        if (isSelected) Color.White.copy(alpha = 0.1f) else Color.Transparent,
+                                                        RoundedCornerShape(8.dp)
+                                                    )
+                                                    .clip(RoundedCornerShape(8.dp))
                                                     .clickable { tempExerciseName = exObj.name }
-                                                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                                                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween
                                             ) {
-                                                Text(text = exObj.name, fontSize = 11.sp, color = Color.White)
+                                                Text(
+                                                    text = exObj.name,
+                                                    fontSize = 13.sp,
+                                                    color = if (isSelected) Color.White else TextSecundario,
+                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                                )
+                                                if (isSelected) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Check,
+                                                        contentDescription = null,
+                                                        tint = Color.White,
+                                                        modifier = Modifier.size(14.dp)
+                                                    )
+                                                }
+                                            }
+                                            if (index < targetList.lastIndex) {
+                                                HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
                                             }
                                         }
                                     }
                                 }
                             } else {
-                                Text(text = "(Lista de ejercicios vacía en esta categoría)", fontSize = 10.sp, color = TextSecundario)
+                                Text(
+                                    text = "Sin ejercicios en esta categoría. Añádelos desde \"Lista de Ejercicios\".",
+                                    fontSize = 11.sp,
+                                    color = TextSecundario
+                                )
                             }
 
-                            Spacer(modifier = Modifier.height(4.dp))
-
+                            // Manual name override
                             OutlinedTextField(
                                 value = tempExerciseName,
                                 onValueChange = { tempExerciseName = it },
-                                label = { Text("Nombre del Ejercicio (Manual o Seleccionado)", color = TextSecundario) },
+                                label = { Text("Manual", color = TextSecundario) },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.White,
                                     unfocusedTextColor = Color.White,
                                     focusedBorderColor = Color.White,
                                     unfocusedBorderColor = BorderColor,
-                                    cursorColor = Color.White
+                                    cursorColor = Color.White,
+                                    focusedContainerColor = AmoledSurface,
+                                    unfocusedContainerColor = AmoledSurface
                                 )
                             )
 
                             OutlinedTextField(
                                 value = tempSetsCount,
                                 onValueChange = { tempSetsCount = it },
-                                label = { Text("Series Objetivo", color = TextSecundario) },
+                                label = { Text("Series objetivo", color = TextSecundario) },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.White,
                                     unfocusedTextColor = Color.White,
                                     focusedBorderColor = Color.White,
                                     unfocusedBorderColor = BorderColor,
-                                    cursorColor = Color.White
+                                    cursorColor = Color.White,
+                                    focusedContainerColor = AmoledSurface,
+                                    unfocusedContainerColor = AmoledSurface
                                 )
                             )
                         }
                     },
                     confirmButton = {
                         TextButton(
-                             onClick = {
-                                 if (tempExerciseName.trim().isNotEmpty()) {
-                                     val setsValue = tempSetsCount.toIntOrNull() ?: 3
-                                     val selectedCat = if (searchInSuperior) "Parte Superior" else "Parte Inferior"
-                                     viewModel.addExerciseToRoutine(activeDetailedRoutine.id, tempExerciseName, setsValue, selectedCat)
-                                     tempExerciseName = ""
-                                     showAddExerciseDialogInDetails = false
-                                 }
-                             }
+                            onClick = {
+                                if (tempExerciseName.trim().isNotEmpty()) {
+                                    val setsValue = tempSetsCount.toIntOrNull() ?: 3
+                                    val selectedCat = if (searchInSuperior) "Parte Superior" else "Parte Inferior"
+                                    viewModel.addExerciseToRoutine(activeDetailedRoutine.id, tempExerciseName, setsValue, selectedCat)
+                                    tempExerciseName = ""
+                                }
+                            }
                         ) {
-                            Text(text = "Guardar", color = Color.White, fontWeight = FontWeight.Bold)
+                            Text(text = "Añadir", color = Color.White, fontWeight = FontWeight.Bold)
                         }
                     },
                     dismissButton = {
-                        TextButton(
-                            onClick = {
-                                tempExerciseName = ""
-                                showAddExerciseDialogInDetails = false
-                            }
-                        ) {
-                            Text(text = "Cancelar", color = TextSecundario)
+                        TextButton(onClick = {
+                            tempExerciseName = ""
+                            showAddExerciseDialogInDetails = false
+                        }) {
+                            Text(text = "Aplicar", color = TextSecundario)
                         }
                     },
                     containerColor = AmoledSurface,
@@ -675,94 +705,180 @@ fun PlanDaysScreen(
         }
     }
 
-    // --- DIALOG: CREATE NEW ROUTINE Day Template ---
+    // --- DIALOG: CREATE NEW ROUTINE ---
     if (showCreateRoutineDialog) {
         var tempRoutineName by remember { mutableStateOf("") }
         var tempRoutineDesc by remember { mutableStateOf("") }
-        var tempExerciseInputListText by remember { mutableStateOf("") }
+        var searchInSuperior by remember { mutableStateOf(true) }
+        val targetList = if (searchInSuperior) superiorExercises else inferiorExercises
+        val selectedExercises = remember { mutableStateListOf<String>() }
 
         AlertDialog(
             onDismissRequest = { showCreateRoutineDialog = false },
-            title = { Text(text = "Nueva Plantilla de Rutina") },
+            shape = RoundedCornerShape(20.dp),
+            title = { Text(text = "Nueva Rutina", fontWeight = FontWeight.Bold, color = Color.White) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(text = "Nombre:", fontSize = 12.sp, color = TextSecundario)
+                Column(
+                    modifier = Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Name field
                     OutlinedTextField(
                         value = tempRoutineName,
                         onValueChange = { tempRoutineName = it },
-                        placeholder = { Text("Nombre de la rutina") },
+                        label = { Text("Nombre de la rutina", color = TextSecundario) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
                             focusedBorderColor = Color.White,
                             unfocusedBorderColor = BorderColor,
-                            cursorColor = Color.White
+                            cursorColor = Color.White,
+                            focusedContainerColor = AmoledSurface,
+                            unfocusedContainerColor = AmoledSurface
                         )
                     )
 
-                    Text(text = "Descripción corta:", fontSize = 12.sp, color = TextSecundario)
                     OutlinedTextField(
                         value = tempRoutineDesc,
                         onValueChange = { tempRoutineDesc = it },
-                        placeholder = { Text("Enfoque hombros y espalda") },
+                        label = { Text("Descripción (opcional)", color = TextSecundario) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
                             focusedBorderColor = Color.White,
                             unfocusedBorderColor = BorderColor,
-                            cursorColor = Color.White
+                            cursorColor = Color.White,
+                            focusedContainerColor = AmoledSurface,
+                            unfocusedContainerColor = AmoledSurface
                         )
                     )
 
-                    Text(text = "Añadir ejercicios iniciales (uno por línea):", fontSize = 12.sp, color = TextSecundario)
-                    OutlinedTextField(
-                        value = tempExerciseInputListText,
-                        onValueChange = { tempExerciseInputListText = it },
-                        placeholder = { Text("Ejercicio") },
-                        minLines = 3,
+                    // Exercise selector
+                    Text(text = "Selecciona ejercicios iniciales:", fontSize = 12.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
+
+                    // Category tabs
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = Color.White,
-                            unfocusedBorderColor = BorderColor,
-                            cursorColor = Color.White
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .border(1.dp, if (searchInSuperior) Color.White else BorderColor, RoundedCornerShape(8.dp))
+                                .background(if (searchInSuperior) Color.White.copy(alpha = 0.1f) else Color.Transparent, RoundedCornerShape(8.dp))
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { searchInSuperior = true }
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "Parte Superior", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .border(1.dp, if (!searchInSuperior) Color.White else BorderColor, RoundedCornerShape(8.dp))
+                                .background(if (!searchInSuperior) Color.White.copy(alpha = 0.1f) else Color.Transparent, RoundedCornerShape(8.dp))
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { searchInSuperior = false }
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "Parte Inferior", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    // Scrollable vertical exercise list
+                    if (targetList.isEmpty()) {
+                        Text(
+                            text = "Sin ejercicios. Añádelos primero desde la pestaña \"Lista de Ejercicios\".",
+                            fontSize = 11.sp,
+                            color = TextSecundario
                         )
-                    )
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 200.dp)
+                                .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                        ) {
+                            val listScroll = androidx.compose.foundation.rememberScrollState()
+                            Column(
+                                modifier = Modifier
+                                    .verticalScroll(listScroll)
+                                    .padding(vertical = 4.dp)
+                            ) {
+                                targetList.forEachIndexed { index, exObj ->
+                                    val isChecked = selectedExercises.contains(exObj.name)
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(
+                                                if (isChecked) Color.White.copy(alpha = 0.07f) else Color.Transparent,
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .clickable {
+                                                if (isChecked) selectedExercises.remove(exObj.name)
+                                                else selectedExercises.add(exObj.name)
+                                            }
+                                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = exObj.name,
+                                            fontSize = 13.sp,
+                                            color = if (isChecked) Color.White else TextSecundario,
+                                            fontWeight = if (isChecked) FontWeight.SemiBold else FontWeight.Normal,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        if (isChecked) {
+                                            Icon(
+                                                imageVector = Icons.Default.CheckCircle,
+                                                contentDescription = null,
+                                                tint = Color.White,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+                                    }
+                                    if (index < targetList.lastIndex) {
+                                        HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Summary of selected
+                    if (selectedExercises.isNotEmpty()) {
+                        Text(
+                            text = "${selectedExercises.size} ejercicio(s) seleccionado(s)",
+                            fontSize = 11.sp,
+                            color = TextSecundario
+                        )
+                    }
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
                         if (tempRoutineName.trim().isNotEmpty()) {
-                            val lines = tempExerciseInputListText.split("\n")
-                                .map { it.trim() }
-                                .filter { it.isNotEmpty() }
-                            viewModel.addRoutine(tempRoutineName, tempRoutineDesc, lines)
-
-                            tempRoutineName = ""
-                            tempRoutineDesc = ""
-                            tempExerciseInputListText = ""
+                            viewModel.addRoutine(tempRoutineName, tempRoutineDesc, selectedExercises.toList())
                             showCreateRoutineDialog = false
                         }
                     }
                 ) {
-                    Text(text = "Crear Plantilla", color = Color.White)
+                    Text(text = "Crear Rutina", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = {
-                        tempRoutineName = ""
-                        tempRoutineDesc = ""
-                        tempExerciseInputListText = ""
-                        showCreateRoutineDialog = false
-                    }
-                ) {
+                TextButton(onClick = { showCreateRoutineDialog = false }) {
                     Text(text = "Cancelar", color = TextSecundario)
                 }
             },
@@ -787,6 +903,7 @@ fun RoutineRowItem(
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
             .clickable { onClick() }
             .padding(16.dp)
     ) {

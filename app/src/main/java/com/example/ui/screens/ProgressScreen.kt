@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -235,12 +236,12 @@ fun ProgressScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { isExpanded = !isExpanded }
                         .padding(14.dp)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { isExpanded = !isExpanded },
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {

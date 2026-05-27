@@ -292,6 +292,7 @@ fun SettingsScreen(
                         Text(text = "Cancelar", color = Color.White)
                     }
                 },
+                shape = RoundedCornerShape(20.dp),
                 containerColor = AmoledSurface,
                 titleContentColor = Color.White,
                 textContentColor = Color.White

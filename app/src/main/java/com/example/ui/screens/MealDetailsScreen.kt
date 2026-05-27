@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -36,6 +37,10 @@ fun MealDetailsScreen(
     val meals by viewModel.selectedDateMeals.collectAsState()
     val mealFoodsMap by viewModel.mealFoods.collectAsState()
     val mealAnalysisLoading by viewModel.mealAnalysisLoading.collectAsState()
+
+    BackHandler {
+        onBack()
+    }
 
     // Filter meals matching the active category
     val currentCategoryMeals = remember(meals) {

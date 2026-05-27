@@ -10,15 +10,18 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -96,11 +99,11 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Header
             item {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -109,13 +112,13 @@ fun HomeScreen(
                     Column {
                         Text(
                             text = "Hola, ${settings.username}",
-                            fontSize = 24.sp,
+                            fontSize = 26.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
                         Text(
                             text = "Tu enfoque de hoy: ${settings.fitnessGoal}",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             color = TextSecundario
                         )
                     }
@@ -161,35 +164,38 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
                         .padding(20.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Circle 1: Calories
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(90.dp)) {
-                            Canvas(modifier = Modifier.size(80.dp)) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(110.dp)) {
+                            Canvas(modifier = Modifier.size(90.dp)) {
                                 drawCircle(
                                     color = BorderColorSubtle,
-                                    style = Stroke(width = 8.dp.toPx())
+                                    style = Stroke(width = 16.dp.toPx())
                                 )
                                 drawArc(
                                     color = Color.White,
                                     startAngle = -90f,
                                     sweepAngle = calRatio * 360f,
                                     useCenter = false,
-                                    style = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
+                                    style = Stroke(width = 16.dp.toPx(), cap = StrokeCap.Round)
                                 )
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
                                     text = "$consumedCalories",
-                                    fontSize = 15.sp,
+                                    fontSize = 18.sp,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
                                     text = "kcal",
-                                    fontSize = 10.sp,
+                                    fontSize = 11.sp,
                                     color = TextSecundario
                                 )
                             }
@@ -197,7 +203,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Calorías",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             color = TextSecundario
                         )
@@ -212,32 +218,35 @@ fun HomeScreen(
                     )
 
                     // Circle 2: Volume
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(90.dp)) {
-                            Canvas(modifier = Modifier.size(80.dp)) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(110.dp)) {
+                            Canvas(modifier = Modifier.size(90.dp)) {
                                 drawCircle(
                                     color = BorderColorSubtle,
-                                    style = Stroke(width = 8.dp.toPx())
+                                    style = Stroke(width = 16.dp.toPx())
                                 )
                                 drawArc(
                                     color = Color.White,
                                     startAngle = -90f,
                                     sweepAngle = volRatio * 360f,
                                     useCenter = false,
-                                    style = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
+                                    style = Stroke(width = 16.dp.toPx(), cap = StrokeCap.Round)
                                 )
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 val displayVol = if (totalVolume >= 1000) String.format(Locale.getDefault(), "%.1fk", totalVolume/1000) else "${totalVolume.toInt()}"
                                 Text(
                                     text = displayVol,
-                                    fontSize = 15.sp,
+                                    fontSize = 18.sp,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
                                     text = "kg",
-                                    fontSize = 10.sp,
+                                    fontSize = 11.sp,
                                     color = TextSecundario
                                 )
                             }
@@ -245,7 +254,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Registro Semanal",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             color = TextSecundario
                         )
@@ -292,7 +301,7 @@ fun HomeScreen(
                                     }
                                 )
                                 .border(1.dp, BorderColorSubtle, RoundedCornerShape(12.dp))
-                                .background(AmoledSurface)
+                                .background(Color.Black, RoundedCornerShape(12.dp))
                                 .padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -347,15 +356,18 @@ fun HomeScreen(
                                 suffix = { Text("kg", color = TextSecundario) },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(50.dp)
+                                    .height(56.dp)
                                     .testTag("weight_input_field"),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.White,
                                     unfocusedTextColor = Color.White,
                                     focusedBorderColor = Color.White,
                                     unfocusedBorderColor = BorderColor,
-                                    cursorColor = Color.White
-                                )
+                                    cursorColor = Color.White,
+                                    focusedContainerColor = Color.Black,
+                                    unfocusedContainerColor = Color.Black
+                                ),
+                                shape = RoundedCornerShape(12.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
@@ -370,13 +382,13 @@ fun HomeScreen(
                                     }
                                 },
                                 modifier = Modifier
-                                    .height(50.dp)
+                                    .height(56.dp)
                                     .testTag("save_weight_button"),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.White,
                                     contentColor = Color.Black
                                 ),
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(12.dp)
                             ) {
                                 Text("Guardar")
                             }
@@ -421,7 +433,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Coach AI",
-                            fontSize = 16.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
@@ -434,13 +446,13 @@ fun HomeScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(100.dp),
+                                .padding(vertical = 16.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "Pregúntale a la IA",
                                 color = TextSecundario,
-                                fontSize = 12.sp,
+                                fontSize = 13.sp,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
@@ -496,15 +508,18 @@ fun HomeScreen(
                             singleLine = true,
                             modifier = Modifier
                                 .weight(1f)
-                                .height(50.dp)
+                                .height(56.dp)
                                 .testTag("coach_chat_input"),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White,
                                 focusedBorderColor = Color.White,
                                 unfocusedBorderColor = BorderColor,
-                                cursorColor = Color.White
-                            )
+                                cursorColor = Color.White,
+                                focusedContainerColor = Color.Black,
+                                unfocusedContainerColor = Color.Black
+                            ),
+                            shape = RoundedCornerShape(12.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         IconButton(
@@ -515,8 +530,8 @@ fun HomeScreen(
                                 }
                             },
                             modifier = Modifier
-                                .background(Color.White, RoundedCornerShape(8.dp))
-                                .size(50.dp)
+                                .background(Color.White, RoundedCornerShape(12.dp))
+                                .size(56.dp)
                                 .testTag("send_question_button")
                         ) {
                             Icon(
@@ -591,8 +606,10 @@ fun CoachSetupContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
             .navigationBarsPadding()
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .imePadding()
+            .padding(horizontal = 24.dp, vertical = 8.dp)
     ) {
         Text(
             text = "Personalizar Coach de IA",
@@ -607,7 +624,7 @@ fun CoachSetupContent(
             modifier = Modifier.padding(vertical = 4.dp)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Provider Selector
         Text(text = "Proveedor de IA", fontSize = 13.sp, color = TextSecundario)
@@ -631,6 +648,7 @@ fun CoachSetupContent(
                             if (isSelected) Color.White else BorderColor,
                             RoundedCornerShape(8.dp)
                         )
+                        .clip(RoundedCornerShape(8.dp))
                         .clickable { selectedProvider = provider }
                         .padding(vertical = 10.dp),
                     contentAlignment = Alignment.Center
@@ -663,8 +681,11 @@ fun CoachSetupContent(
                 unfocusedTextColor = Color.White,
                 focusedBorderColor = Color.White,
                 unfocusedBorderColor = BorderColor,
-                cursorColor = Color.White
-            )
+                cursorColor = Color.White,
+                focusedContainerColor = Color.Black,
+                unfocusedContainerColor = Color.Black
+            ),
+            shape = RoundedCornerShape(12.dp)
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -691,6 +712,7 @@ fun CoachSetupContent(
                             if (isSelected) Color.White else BorderColor,
                             RoundedCornerShape(8.dp)
                         )
+                        .clip(RoundedCornerShape(8.dp))
                         .clickable { selectedGoal = goal }
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
@@ -724,6 +746,7 @@ fun CoachSetupContent(
                             if (isSelected) Color.White else BorderColor,
                             RoundedCornerShape(8.dp)
                         )
+                        .clip(RoundedCornerShape(8.dp))
                         .clickable { selectedGoal = goal }
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
@@ -757,11 +780,14 @@ fun CoachSetupContent(
                 unfocusedTextColor = Color.White,
                 focusedBorderColor = Color.White,
                 unfocusedBorderColor = BorderColor,
-                cursorColor = Color.White
-            )
+                cursorColor = Color.White,
+                focusedContainerColor = Color.Black,
+                unfocusedContainerColor = Color.Black
+            ),
+            shape = RoundedCornerShape(12.dp)
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Button(
             onClick = {
@@ -823,6 +849,7 @@ fun StartWorkoutMenuContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .clickable { onSelectCustom() }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -892,6 +919,7 @@ fun StartWorkoutMenuContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp))
                             .clickable { onSelectRoutine(routine) }
                             .padding(14.dp),
                         verticalAlignment = Alignment.CenterVertically,
