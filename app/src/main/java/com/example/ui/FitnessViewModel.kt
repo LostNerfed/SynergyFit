@@ -322,10 +322,7 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
                             totalFat = 8.0
                         )
                     )
-                    val mockFoods = listOf(
-                        Food(mealId = mockMealId.toInt(), name = "Comida (estimación genérica)", calories = 280, protein = 15.0, carbs = 25.0, fat = 8.0)
-                    )
-                    repository.insertFoods(mockFoods)
+                    // We don't insert any generic food item so the UI remains clean
                     generateNutritionInsight()
                     onDone(true)
                 }

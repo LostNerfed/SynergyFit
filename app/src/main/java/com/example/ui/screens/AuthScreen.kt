@@ -73,12 +73,11 @@ fun AuthScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = BorderColor,
+                    focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                    unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                     cursorColor = Color.White,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent
-                ),
+                    focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                    unfocusedContainerColor = com.example.ui.theme.AmoledSurface),
                 shape = RoundedCornerShape(12.dp)
             )
 
@@ -125,7 +124,7 @@ fun AuthScreen(
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                     .padding(16.dp)
             ) {
                 Column {

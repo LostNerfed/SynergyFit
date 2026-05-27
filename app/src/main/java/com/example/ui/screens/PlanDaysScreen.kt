@@ -85,38 +85,41 @@ fun PlanDaysScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(BorderColorSubtle, RoundedCornerShape(10.dp))
+                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(32.dp))
+                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(32.dp))
                     .padding(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .background(if (activePlanTab == 0) Color.White else Color.Transparent, RoundedCornerShape(8.dp))
+                        .background(if (activePlanTab == 0) Color.White.copy(alpha = 0.15f) else Color.Transparent, RoundedCornerShape(32.dp))
+                        .clip(RoundedCornerShape(32.dp))
                         .clickable { activePlanTab = 0 }
-                        .padding(vertical = 10.dp),
+                        .padding(vertical = 12.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "Mis Rutinas",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (activePlanTab == 0) Color.Black else Color.White
+                        color = if (activePlanTab == 0) Color.White else TextSecundario
                     )
                 }
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .background(if (activePlanTab == 1) Color.White else Color.Transparent, RoundedCornerShape(8.dp))
+                        .background(if (activePlanTab == 1) Color.White.copy(alpha = 0.15f) else Color.Transparent, RoundedCornerShape(32.dp))
+                        .clip(RoundedCornerShape(32.dp))
                         .clickable { activePlanTab = 1 }
-                        .padding(vertical = 10.dp),
+                        .padding(vertical = 12.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "Lista de Ejercicios",
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (activePlanTab == 1) Color.Black else Color.White
+                        color = if (activePlanTab == 1) Color.White else TextSecundario
                     )
                 }
             }
@@ -145,7 +148,7 @@ fun PlanDaysScreen(
                     IconButton(
                         onClick = { showCreateRoutineDialog = true },
                         modifier = Modifier
-                            .border(1.dp, BorderColor, CircleShape)
+                            .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
                             .size(36.dp)
                             .testTag("add_routine_button")
                     ) {
@@ -158,7 +161,7 @@ fun PlanDaysScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                             .padding(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -209,7 +212,7 @@ fun PlanDaysScreen(
                     IconButton(
                         onClick = { showAddCustomExerciseDialog = true },
                         modifier = Modifier
-                            .border(1.dp, BorderColor, CircleShape)
+                            .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
                             .size(36.dp)
                             .testTag("add_custom_exercise_mother_button")
                     ) {
@@ -252,7 +255,7 @@ fun PlanDaysScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .border(1.dp, BorderColorSubtle, RoundedCornerShape(10.dp))
+                                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(10.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(10.dp))
                                     .background(AmoledSurface, RoundedCornerShape(10.dp))
                                     .padding(horizontal = 14.dp, vertical = 10.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -300,7 +303,7 @@ fun PlanDaysScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .border(1.dp, BorderColorSubtle, RoundedCornerShape(10.dp))
+                                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(10.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(10.dp))
                                     .background(AmoledSurface, RoundedCornerShape(10.dp))
                                     .padding(horizontal = 14.dp, vertical = 10.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -344,12 +347,11 @@ fun PlanDaysScreen(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.White,
                                     unfocusedTextColor = Color.White,
-                                    focusedBorderColor = Color.White,
-                                    unfocusedBorderColor = BorderColor,
+                                    focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                                    unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                     cursorColor = Color.White,
-                                    focusedContainerColor = AmoledSurface,
-                                    unfocusedContainerColor = AmoledSurface
-                                )
+                                    focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                                    unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
                             )
 
                             Text(text = "Grupo muscular:", fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
@@ -464,7 +466,7 @@ fun PlanDaysScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                             .padding(14.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -584,13 +586,12 @@ fun PlanDaysScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .heightIn(max = 200.dp)
-                                        .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                                 ) {
                                     val listScroll = androidx.compose.foundation.rememberScrollState()
                                     Column(
                                         modifier = Modifier
                                             .verticalScroll(listScroll)
-                                            .padding(vertical = 4.dp)
                                     ) {
                                         targetList.forEachIndexed { index, exObj ->
                                             val isSelected = tempExerciseName == exObj.name
@@ -647,12 +648,11 @@ fun PlanDaysScreen(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.White,
                                     unfocusedTextColor = Color.White,
-                                    focusedBorderColor = Color.White,
-                                    unfocusedBorderColor = BorderColor,
+                                    focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                                    unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                     cursorColor = Color.White,
-                                    focusedContainerColor = AmoledSurface,
-                                    unfocusedContainerColor = AmoledSurface
-                                )
+                                    focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                                    unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
                             )
 
                             OutlinedTextField(
@@ -666,12 +666,11 @@ fun PlanDaysScreen(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.White,
                                     unfocusedTextColor = Color.White,
-                                    focusedBorderColor = Color.White,
-                                    unfocusedBorderColor = BorderColor,
+                                    focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                                    unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                     cursorColor = Color.White,
-                                    focusedContainerColor = AmoledSurface,
-                                    unfocusedContainerColor = AmoledSurface
-                                )
+                                    focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                                    unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
                             )
                         }
                     },
@@ -733,12 +732,11 @@ fun PlanDaysScreen(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
-                            focusedBorderColor = Color.White,
-                            unfocusedBorderColor = BorderColor,
+                            focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                            unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                             cursorColor = Color.White,
-                            focusedContainerColor = AmoledSurface,
-                            unfocusedContainerColor = AmoledSurface
-                        )
+                            focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                            unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
                     )
 
                     OutlinedTextField(
@@ -751,12 +749,11 @@ fun PlanDaysScreen(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
-                            focusedBorderColor = Color.White,
-                            unfocusedBorderColor = BorderColor,
+                            focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                            unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                             cursorColor = Color.White,
-                            focusedContainerColor = AmoledSurface,
-                            unfocusedContainerColor = AmoledSurface
-                        )
+                            focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                            unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
                     )
 
                     // Exercise selector
@@ -805,13 +802,12 @@ fun PlanDaysScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .heightIn(max = 200.dp)
-                                .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                         ) {
                             val listScroll = androidx.compose.foundation.rememberScrollState()
                             Column(
                                 modifier = Modifier
                                     .verticalScroll(listScroll)
-                                    .padding(vertical = 4.dp)
                             ) {
                                 targetList.forEachIndexed { index, exObj ->
                                     val isChecked = selectedExercises.contains(exObj.name)
@@ -897,12 +893,14 @@ fun RoutineRowItem(
     onStartWorkout: () -> Unit,
     onDelete: () -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
     val exerciseList by viewModel.getExercisesForRoutine(routine.id).collectAsState(initial = emptyList())
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
             .clickable { onClick() }
             .padding(16.dp)
@@ -944,11 +942,35 @@ fun RoutineRowItem(
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                IconButton(onClick = onDelete) {
+                IconButton(onClick = { showDeleteConfirm = true }) {
                     Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Routine", tint = TextSecundario, modifier = Modifier.size(16.dp))
                 }
-                Icon(imageVector = Icons.Default.ChevronRight, contentDescription = "Edit", tint = Color.White)
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(
+                        imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = "Expand",
+                        tint = Color.White
+                    )
+                }
             }
+        }
+
+        if (showDeleteConfirm) {
+            AlertDialog(
+                onDismissRequest = { showDeleteConfirm = false },
+                title = { Text("Eliminar rutina", color = Color.White) },
+                text = { Text("¿Estás seguro de que quieres eliminar esta rutina?", color = TextSecundario) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDeleteConfirm = false
+                        onDelete()
+                    }) { Text("Eliminar", color = Color.Red) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancelar", color = Color.White) }
+                },
+                containerColor = com.example.ui.theme.AmoledSurface
+            )
         }
 
         if (routine.description.isNotEmpty()) {
@@ -962,28 +984,19 @@ fun RoutineRowItem(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        // Show quick summary list of exercises
-        if (exerciseList.isNotEmpty()) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+        // Show expandable list of exercises
+        if (expanded && exerciseList.isNotEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                exerciseList.take(3).forEach { ex ->
-                    Box(
-                        modifier = Modifier
-                            .background(BorderColorSubtle, RoundedCornerShape(4.dp))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text(text = ex.exerciseName, fontSize = 10.sp, color = Color.White)
-                    }
-                }
-                if (exerciseList.size > 3) {
-                    Box(
-                        modifier = Modifier
-                            .background(BorderColorSubtle, RoundedCornerShape(4.dp))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text(text = "+${exerciseList.size - 3}", fontSize = 10.sp, color = TextSecundario)
+                exerciseList.forEach { ex ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.size(4.dp).background(Color.White, CircleShape))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = ex.exerciseName, fontSize = 13.sp, color = Color.White)
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(text = "${ex.targetSets} series", fontSize = 11.sp, color = TextSecundario)
                     }
                 }
             }

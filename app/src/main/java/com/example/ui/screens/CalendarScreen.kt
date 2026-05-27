@@ -112,7 +112,7 @@ fun CalendarScreen(
                             nextMock.add(Calendar.MONTH, -1)
                             calendarMonth = nextMock
                         },
-                        modifier = Modifier.border(1.dp, BorderColor, CircleShape).size(36.dp)
+                        modifier = Modifier.background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape).size(36.dp)
                     ) {
                         Icon(imageVector = Icons.Default.ChevronLeft, contentDescription = "Prev Month", tint = Color.White)
                     }
@@ -123,7 +123,7 @@ fun CalendarScreen(
                             nextMock.add(Calendar.MONTH, 1)
                             calendarMonth = nextMock
                         },
-                        modifier = Modifier.border(1.dp, BorderColor, CircleShape).size(36.dp)
+                        modifier = Modifier.background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape).size(36.dp)
                     ) {
                         Icon(imageVector = Icons.Default.ChevronRight, contentDescription = "Next Month", tint = Color.White)
                     }
@@ -136,7 +136,7 @@ fun CalendarScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
                     .padding(12.dp)
             ) {
                 // Day initials
@@ -227,7 +227,7 @@ fun CalendarScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                         .padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -246,7 +246,7 @@ fun CalendarScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                         .padding(16.dp)
                 ) {
                     Row(
@@ -272,7 +272,7 @@ fun CalendarScreen(
 
                         Box(
                             modifier = Modifier
-                                .border(1.dp, BorderColor, RoundedCornerShape(6.dp))
+                                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(6.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(6.dp))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
@@ -311,7 +311,7 @@ fun CalendarScreen(
                                     val logLabel = if (sLog.isDropset) "DS" else "S${sLog.setIndex}"
                                     Box(
                                         modifier = Modifier
-                                            .border(1.dp, BorderColorSubtle, RoundedCornerShape(4.dp))
+                                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(4.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(4.dp))
                                             .background(BorderColorSubtle)
                                             .padding(horizontal = 6.dp, vertical = 4.dp)
                                     ) {

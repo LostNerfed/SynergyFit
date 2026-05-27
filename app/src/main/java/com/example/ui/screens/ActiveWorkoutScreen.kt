@@ -140,7 +140,7 @@ fun ActiveWorkoutScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                             .padding(14.dp)
                     ) {
                         Text(
@@ -189,7 +189,7 @@ fun ActiveWorkoutScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
                             .padding(16.dp)
                     ) {
                         Row(
@@ -257,7 +257,7 @@ fun ActiveWorkoutScreen(
                                         .weight(1f)
                                         .padding(horizontal = 4.dp)
                                         .background(Color(0xFF101010), RoundedCornerShape(8.dp))
-                                        .border(1.dp, BorderColorSubtle, RoundedCornerShape(8.dp))
+                                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(8.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(8.dp))
                                         .padding(vertical = 12.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -292,7 +292,7 @@ fun ActiveWorkoutScreen(
                                         .weight(1f)
                                         .padding(horizontal = 4.dp)
                                         .background(Color(0xFF101010), RoundedCornerShape(8.dp))
-                                        .border(1.dp, BorderColorSubtle, RoundedCornerShape(8.dp))
+                                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(8.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(8.dp))
                                         .padding(vertical = 12.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -534,7 +534,7 @@ fun ActiveWorkoutScreen(
                                         Box(
                                             modifier = Modifier
                                                 .background(BorderColorSubtle, RoundedCornerShape(8.dp))
-                                                .border(1.dp, BorderColor, RoundedCornerShape(8.dp))
+                                                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(8.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(8.dp))
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .clickable { tempAddExerciseName = exObj.name }
                                                 .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -559,10 +559,10 @@ fun ActiveWorkoutScreen(
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White,
-                                focusedBorderColor = Color.White,
-                                unfocusedBorderColor = BorderColor,
+                                focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                                unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                 cursorColor = Color.White
-                            )
+                            , focusedContainerColor = com.example.ui.theme.AmoledSurface, unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
                         )
                     }
                 },

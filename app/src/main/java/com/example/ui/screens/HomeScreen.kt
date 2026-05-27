@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -76,23 +77,6 @@ fun HomeScreen(
             .fillMaxSize()
             .background(AmoledBg),
         containerColor = AmoledBg,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showStartWorkoutSheet = true },
-                containerColor = Color.White,
-                contentColor = Color.Black,
-                shape = CircleShape,
-                modifier = Modifier
-                    .padding(bottom = 76.dp) // clear bottom navigation bar height
-                    .testTag("start_workout_fab")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Start Workout",
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -109,25 +93,18 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
                         Text(
                             text = "Hola, ${settings.username}",
                             fontSize = 26.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
-                        Text(
-                            text = "Tu enfoque de hoy: ${settings.fitnessGoal}",
-                            fontSize = 14.sp,
-                            color = TextSecundario
-                        )
-                    }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         IconButton(
                             onClick = { showPersonalizeSheet = true },
                             modifier = Modifier
-                                .border(1.dp, BorderColor, CircleShape)
+                                .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
                                 .size(40.dp)
                                 .testTag("personalize_button")
                         ) {
@@ -142,7 +119,7 @@ fun HomeScreen(
                         IconButton(
                             onClick = onNavigateToSettings,
                             modifier = Modifier
-                                .border(1.dp, BorderColor, CircleShape)
+                                .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
                                 .size(40.dp)
                                 .testTag("settings_button")
                         ) {
@@ -162,7 +139,7 @@ fun HomeScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
                         .padding(20.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
@@ -262,149 +239,159 @@ fun HomeScreen(
                 }
             }
 
-            // Body Weight Tracker Card
+            // 1x1 Cards Row: Body Weight & Start Workout
             item {
-                var isEditingWeight by remember { mutableStateOf(false) }
-                var weightInput by remember { mutableStateOf(settings.bodyWeight.toString()) }
-                var isSavedFeedback by remember { mutableStateOf(false) }
-
-                LaunchedEffect(settings.bodyWeight) {
-                    weightInput = settings.bodyWeight.toString()
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
-                        .padding(16.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Peso Corporal",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+                    var isEditingWeight by remember { mutableStateOf(false) }
+                    var weightInput by remember { mutableStateOf(settings.bodyWeight.toString()) }
+                    var isSavedFeedback by remember { mutableStateOf(false) }
 
-                    if (!isEditingWeight) {
+                    LaunchedEffect(settings.bodyWeight) {
+                        weightInput = settings.bodyWeight.toString()
+                    }
+
+                    // Body Weight 1x1 Card
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(110.dp)
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
+                            .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .combinedClickable(
-                                    onLongClick = {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        isEditingWeight = true
-                                    },
-                                    onClick = {
-                                        // Give them feedback or allow standard click too if needed, but per request we emphasize long-press.
-                                        // We can do a small hint
-                                    }
-                                )
-                                .border(1.dp, BorderColorSubtle, RoundedCornerShape(12.dp))
-                                .background(Color.Black, RoundedCornerShape(12.dp))
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
                         ) {
-                            Column {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = "${settings.bodyWeight} kg",
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-                                    if (isSavedFeedback) {
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        Text(
-                                            text = "¡Guardado!",
-                                            color = Color.Green,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "Mantén presionado para editar",
-                                    fontSize = 12.sp,
-                                    color = TextSecundario
-                                )
-                            }
                             IconButton(
-                                onClick = { isEditingWeight = true },
+                                onClick = { isEditingWeight = !isEditingWeight },
                                 modifier = Modifier.size(24.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
                                     contentDescription = "Editar peso",
                                     tint = TextSecundario,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(16.dp)
                                 )
                             }
                         }
-                    } else {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
+
+                        Column(
+                            verticalArrangement = Arrangement.Bottom,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            OutlinedTextField(
-                                value = weightInput,
-                                onValueChange = { weightInput = it },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                singleLine = true,
-                                suffix = { Text("kg", color = TextSecundario) },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(56.dp)
-                                    .testTag("weight_input_field"),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White,
-                                    focusedBorderColor = Color.White,
-                                    unfocusedBorderColor = BorderColor,
-                                    cursorColor = Color.White,
-                                    focusedContainerColor = Color.Black,
-                                    unfocusedContainerColor = Color.Black
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(
-                                onClick = {
-                                    val wt = weightInput.toDoubleOrNull() ?: settings.bodyWeight
-                                    viewModel.updateSettings(settings.copy(bodyWeight = wt))
-                                    isSavedFeedback = true
-                                    isEditingWeight = false
-                                    coroutineScope.launch {
-                                        kotlinx.coroutines.delay(2000)
-                                        isSavedFeedback = false
-                                    }
-                                },
-                                modifier = Modifier
-                                    .height(56.dp)
-                                    .testTag("save_weight_button"),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.White,
-                                    contentColor = Color.Black
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Text("Guardar")
-                            }
-                            Spacer(modifier = Modifier.width(4.dp))
-                            IconButton(
-                                onClick = {
-                                    weightInput = settings.bodyWeight.toString()
-                                    isEditingWeight = false
+                            if (!isEditingWeight) {
+                                Row(verticalAlignment = Alignment.Bottom) {
+                                    Text(
+                                        text = "${settings.bodyWeight}",
+                                        fontSize = 26.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Text(
+                                        text = "kg",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = TextSecundario,
+                                        modifier = Modifier.padding(bottom = 6.dp)
+                                    )
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Cancelar",
-                                    tint = TextSecundario
+                            } else {
+                                OutlinedTextField(
+                                    value = weightInput,
+                                    onValueChange = { weightInput = it },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(48.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = Color.White,
+                                        unfocusedTextColor = Color.White,
+                                        focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                                        unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                                        cursorColor = Color.White,
+                                        focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                                        unfocusedContainerColor = com.example.ui.theme.AmoledSurface
+                                    ),
+                                    shape = RoundedCornerShape(12.dp),
+                                    keyboardActions = KeyboardActions(
+                                        onDone = {
+                                            val wt = weightInput.toDoubleOrNull() ?: settings.bodyWeight
+                                            viewModel.updateSettings(settings.copy(bodyWeight = wt))
+                                            isEditingWeight = false
+                                        }
+                                    )
                                 )
                             }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Peso",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "Corporal",
+                                fontSize = 11.sp,
+                                color = TextSecundario
+                            )
+                        }
+                    }
+
+                    // Start Workout 1x1 Card
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(110.dp)
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
+                            .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
+                            .clickable { showStartWorkoutSheet = true }
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background(com.example.ui.theme.AmoledBg, CircleShape)
+                                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PlayArrow,
+                                    contentDescription = "Iniciar",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+
+                        Column(
+                            verticalArrangement = Arrangement.Bottom,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Iniciar",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Rutina",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
                         }
                     }
                 }
@@ -417,7 +404,7 @@ fun HomeScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
                         .padding(16.dp)
                 ) {
                     Row(
@@ -446,7 +433,7 @@ fun HomeScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 16.dp),
+                                .padding(vertical = 4.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -475,7 +462,7 @@ fun HomeScreen(
                                 Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
                                     Box(
                                         modifier = Modifier
-                                            .border(1.dp, BorderColor, RoundedCornerShape(12.dp, 12.dp, 12.dp, 0.dp))
+                                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp, 12.dp, 12.dp, 0.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp, 12.dp, 12.dp, 0.dp))
                                             .padding(10.dp)
                                     ) {
                                         Text(text = r, color = Color.White, fontSize = 12.sp)
@@ -513,12 +500,11 @@ fun HomeScreen(
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White,
-                                focusedBorderColor = Color.White,
-                                unfocusedBorderColor = BorderColor,
+                                focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                                unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                 cursorColor = Color.White,
-                                focusedContainerColor = Color.Black,
-                                unfocusedContainerColor = Color.Black
-                            ),
+                                focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                                unfocusedContainerColor = com.example.ui.theme.AmoledSurface),
                             shape = RoundedCornerShape(12.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -679,12 +665,11 @@ fun CoachSetupContent(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = BorderColor,
+                focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                 cursorColor = Color.White,
-                focusedContainerColor = Color.Black,
-                unfocusedContainerColor = Color.Black
-            ),
+                focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                unfocusedContainerColor = com.example.ui.theme.AmoledSurface),
             shape = RoundedCornerShape(12.dp)
         )
 
@@ -778,12 +763,11 @@ fun CoachSetupContent(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = BorderColor,
+                focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                 cursorColor = Color.White,
-                focusedContainerColor = Color.Black,
-                unfocusedContainerColor = Color.Black
-            ),
+                focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                unfocusedContainerColor = com.example.ui.theme.AmoledSurface),
             shape = RoundedCornerShape(12.dp)
         )
 
@@ -848,7 +832,7 @@ fun StartWorkoutMenuContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp))
                 .clickable { onSelectCustom() }
                 .padding(16.dp),
@@ -918,7 +902,7 @@ fun StartWorkoutMenuContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                             .clip(RoundedCornerShape(12.dp))
                             .clickable { onSelectRoutine(routine) }
                             .padding(14.dp),
@@ -928,7 +912,7 @@ fun StartWorkoutMenuContent(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
-                                    .border(1.dp, BorderColor, CircleShape)
+                                    .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
                                     .size(36.dp),
                                 contentAlignment = Alignment.Center
                             ) {

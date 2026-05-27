@@ -95,7 +95,7 @@ fun NutritionHomeScreen(
             IconButton(
                 onClick = { viewModel.selectDate(getFormattedToday()) },
                 modifier = Modifier
-                    .border(1.dp, BorderColor, CircleShape)
+                    .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
                     .size(36.dp)
             ) {
                 Icon(
@@ -116,7 +116,7 @@ fun NutritionHomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
                 .padding(16.dp)
         ) {
             Row(
@@ -198,16 +198,17 @@ fun NutritionHomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, if (showMealForm) Color.White else BorderColor, RoundedCornerShape(12.dp))
+                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp))
+                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { showMealForm = !showMealForm }
+                    .clickable { showMealForm = true }
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.AddCircleOutline,
                     contentDescription = "Agregar",
-                    tint = if (showMealForm) Color.White else TextSecundario,
+                    tint = Color.White,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -215,31 +216,35 @@ fun NutritionHomeScreen(
                     text = "Registrar alimento",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (showMealForm) Color.White else TextSecundario
+                    color = Color.White
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                Icon(
-                    imageVector = if (showMealForm) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = TextSecundario,
-                    modifier = Modifier.size(16.dp)
-                )
             }
 
-            // Expandable form
-            AnimatedVisibility(visible = showMealForm) {
-                Box(modifier = Modifier.padding(top = 8.dp)) {
-                    UnifiedMealCard(
-                        meals = meals,
-                        mealFoodsMap = mealFoodsMap,
-                        selectedDate = selectedDate,
-                        mealAnalysisLoading = mealAnalysisLoading,
-                        onLogMeal = { category, description ->
-                            viewModel.logMealFromNaturalLanguage(category, description, selectedDate) {}
-                        },
-                        onDeleteMeal = { mealId -> viewModel.deleteMeal(mealId) },
-                        showHistory = false
-                    )
+            // Modal Bottom Sheet for Meal Form
+            if (showMealForm) {
+                @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+                androidx.compose.material3.ModalBottomSheet(
+                    onDismissRequest = { showMealForm = false },
+                    containerColor = com.example.ui.theme.AmoledBg,
+                    scrimColor = Color.Black.copy(alpha = 0.5f),
+                    dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle(color = BorderColor) }
+                ) {
+                    Box(modifier = Modifier.padding(bottom = 32.dp)) {
+                        UnifiedMealCard(
+                            meals = meals,
+                            mealFoodsMap = mealFoodsMap,
+                            selectedDate = selectedDate,
+                            mealAnalysisLoading = mealAnalysisLoading,
+                            onLogMeal = { category, description ->
+                                viewModel.logMealFromNaturalLanguage(category, description, selectedDate) {
+                                    showMealForm = false
+                                }
+                            },
+                            onDeleteMeal = { mealId -> viewModel.deleteMeal(mealId) },
+                            showHistory = false
+                        )
+                    }
                 }
             }
         }
@@ -254,7 +259,8 @@ fun NutritionHomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, if (showMealHistory) Color.White else BorderColor, RoundedCornerShape(12.dp))
+                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp))
+                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { showMealHistory = !showMealHistory }
                     .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -310,7 +316,8 @@ fun NutritionHomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, if (showWeeklyChart) Color.White else BorderColor, RoundedCornerShape(12.dp))
+                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp))
+                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { showWeeklyChart = !showWeeklyChart }
                     .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -359,7 +366,7 @@ fun MacroProgressWidget(
 ) {
     Column(
         modifier = modifier
-            .border(1.dp, BorderColorSubtle, RoundedCornerShape(8.dp))
+            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(8.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(8.dp))
             .padding(10.dp)
     ) {
         Text(text = title, fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Medium)
@@ -406,12 +413,12 @@ fun HorizontalDatePicker(
                 modifier = Modifier
                     .width(54.dp)
                     .background(
-                        if (isSelected) Color.White else Color.Transparent,
+                        if (isSelected) Color.White else com.example.ui.theme.AmoledSurface,
                         RoundedCornerShape(12.dp)
                     )
                     .border(
                         1.dp,
-                        if (isSelected) Color.White else BorderColor,
+                        if (isSelected) androidx.compose.ui.graphics.SolidColor(Color.White) else com.example.ui.theme.PremiumGradientBorder,
                         RoundedCornerShape(12.dp)
                     )
                     .clip(RoundedCornerShape(12.dp))
@@ -449,7 +456,7 @@ fun WeeklyNutritionBarChart(weeklyCaloriesMap: Map<String, Int>) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
             .padding(16.dp)
             .height(130.dp),
         horizontalArrangement = Arrangement.SpaceAround,
@@ -529,7 +536,7 @@ fun UnifiedMealCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -595,12 +602,11 @@ fun UnifiedMealCard(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = BorderColor,
+                focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                 cursorColor = Color.White,
-                focusedContainerColor = Color.Black,
-                unfocusedContainerColor = Color.Black
-            ),
+                focusedContainerColor = com.example.ui.theme.AmoledSurface,
+                unfocusedContainerColor = com.example.ui.theme.AmoledSurface),
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             maxLines = 4
@@ -698,7 +704,7 @@ fun MealHistoryContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -747,7 +753,7 @@ fun MealCategorySection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, BorderColorSubtle, RoundedCornerShape(10.dp))
+                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(10.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(10.dp))
                 .clip(RoundedCornerShape(10.dp))
                 .clickable { expanded = !expanded }
                 .padding(horizontal = 12.dp, vertical = 10.dp),

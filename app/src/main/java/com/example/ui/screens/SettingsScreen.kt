@@ -72,7 +72,7 @@ fun SettingsScreen(
                 Text(text = "SECCIÓN INTELIGENCIA ARTIFICIAL", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextSecundario)
                 Spacer(modifier = Modifier.height(8.dp))
                 Column(
-                    modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                    modifier = Modifier.fillMaxWidth().background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                 ) {
                     SettingItemRow(
                         title = "Configurar Coach IA",
@@ -88,7 +88,7 @@ fun SettingsScreen(
                 Text(text = "DATOS Y COPIAS DE SEGURIDAD (BACKUP)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextSecundario)
                 Spacer(modifier = Modifier.height(8.dp))
                 Column(
-                    modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                    modifier = Modifier.fillMaxWidth().background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                 ) {
                     SettingItemRow(
                         title = "Exportar Base de Datos a JSON",
@@ -119,7 +119,7 @@ fun SettingsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                             .background(BorderColorSubtle)
                             .padding(14.dp)
                     ) {
@@ -149,7 +149,7 @@ fun SettingsScreen(
                 Text(text = "COPIAS DE SEGURIDAD LOCALES", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextSecundario)
                 Spacer(modifier = Modifier.height(8.dp))
                 Column(
-                    modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                    modifier = Modifier.fillMaxWidth().background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                 ) {
                     SettingItemRow(
                         title = "Generar Copia de Seguridad Local",
@@ -316,7 +316,7 @@ fun SettingItemRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier.border(1.dp, BorderColor, CircleShape).size(36.dp),
+            modifier = Modifier.background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape).size(36.dp),
             contentAlignment = Alignment.Center
         ) {
             Icon(imageVector = icon, contentDescription = title, tint = Color.White, modifier = Modifier.size(16.dp))

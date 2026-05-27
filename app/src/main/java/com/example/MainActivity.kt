@@ -112,16 +112,17 @@ class MainActivity : ComponentActivity() {
                             containerColor = AmoledBg,
                             bottomBar = {
                                 Surface(
-                                    color = Color.Black,
-                                    shape = RoundedCornerShape(16.dp),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderColor),
+                                    color = com.example.ui.theme.AmoledSurface,
+                                    shape = RoundedCornerShape(32.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, com.example.ui.theme.PremiumGradientBorder),
                                     modifier = Modifier
                                         .navigationBarsPadding()
-                                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                                        .padding(horizontal = 16.dp, vertical = 20.dp)
                                 ) {
                                     NavigationBar(
-                                        containerColor = Color.Black,
+                                        containerColor = Color.Transparent,
                                         tonalElevation = 0.dp,
+                                        modifier = Modifier.clip(RoundedCornerShape(32.dp)),
                                         windowInsets = WindowInsets(0.dp)
                                     ) {
                                         NavigationBarItem(

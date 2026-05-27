@@ -87,7 +87,7 @@ fun MealDetailsScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, BorderColor, RoundedCornerShape(16.dp))
+                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
                 .padding(16.dp)
         ) {
             Text(
@@ -117,10 +117,10 @@ fun MealDetailsScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = BorderColor,
+                    focusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                    unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                     cursorColor = Color.White
-                )
+                , focusedContainerColor = com.example.ui.theme.AmoledSurface, unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -171,7 +171,7 @@ fun MealDetailsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                     .padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -192,7 +192,7 @@ fun MealDetailsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                             .padding(14.dp)
                     ) {
                         Row(
