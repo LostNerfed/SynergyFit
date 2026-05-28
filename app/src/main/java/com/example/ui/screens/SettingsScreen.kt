@@ -78,6 +78,7 @@ fun SettingsScreen(
                         title = "Configurar Coach IA",
                         sub = "Proveedor: ${settings.iaProvider}  |  Objetivo: ${settings.fitnessGoal}",
                         icon = Icons.Default.AutoAwesome,
+                        iconTint = Color(0xFFB388FF),
                         onClick = { showCoachSetupSheet = true }
                     )
                 }
@@ -94,6 +95,7 @@ fun SettingsScreen(
                         title = "Exportar Base de Datos a JSON",
                         sub = "Genera un archivo JSON legible con tus datos locales.",
                         icon = Icons.Default.CloudDownload,
+                        iconTint = Color(0xFF4CAF50),
                         onClick = {
                             scope.launch {
                                 val result = viewModel.exportJson()
@@ -106,6 +108,7 @@ fun SettingsScreen(
                         title = "Importar JSON local",
                         sub = "Carga datos históricos desde una copia local previa.",
                         icon = Icons.Default.CloudUpload,
+                        iconTint = Color(0xFF4CAF50),
                         onClick = {
                             jsonExportResult = "{\"status\": \"Copia restaurada exitosamente desde almacenamiento local.\"}"
                         }
@@ -155,6 +158,7 @@ fun SettingsScreen(
                         title = "Generar Copia de Seguridad Local",
                         sub = "Guarda una copia de seguridad en el almacenamiento local seguro de tu dispositivo.",
                         icon = Icons.Default.Backup,
+                        iconTint = Color(0xFF64B5F6),
                         onClick = {
                             viewModel.generateManualBackup { result ->
                                 cloudBackupStatus = result
@@ -209,7 +213,7 @@ fun SettingsScreen(
                                 Icon(
                                     imageVector = Icons.Default.SettingsBackupRestore,
                                     contentDescription = "Restaurar",
-                                    tint = Color.White,
+                                    tint = Color(0xFF64B5F6),
                                     modifier = Modifier.size(16.dp)
                                 )
                             }
@@ -306,6 +310,7 @@ fun SettingItemRow(
     title: String,
     sub: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
+    iconTint: Color = Color.White,
     onClick: () -> Unit
 ) {
     Row(
@@ -315,11 +320,17 @@ fun SettingItemRow(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val bgColor = if (iconTint == Color.White) com.example.ui.theme.AmoledSurface else iconTint.copy(alpha = 0.15f)
+        val borderModifier = if (iconTint == Color.White) {
+            Modifier.border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
+        } else {
+            Modifier.border(1.dp, iconTint.copy(alpha = 0.5f), CircleShape)
+        }
         Box(
-            modifier = Modifier.background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape).size(36.dp),
+            modifier = Modifier.background(bgColor, CircleShape).then(borderModifier).size(36.dp),
             contentAlignment = Alignment.Center
         ) {
-            Icon(imageVector = icon, contentDescription = title, tint = Color.White, modifier = Modifier.size(16.dp))
+            Icon(imageVector = icon, contentDescription = title, tint = iconTint, modifier = Modifier.size(16.dp))
         }
         Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {

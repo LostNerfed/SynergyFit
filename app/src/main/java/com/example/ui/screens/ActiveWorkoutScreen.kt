@@ -189,19 +189,31 @@ fun ActiveWorkoutScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
-                            .padding(16.dp)
+                            .padding(vertical = 12.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = exName,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
+                            var nameText by remember(exName) { mutableStateOf(exName) }
+                            LaunchedEffect(nameText) {
+                                delay(600)
+                                if (nameText.trim().isNotEmpty() && nameText != exName) {
+                                    viewModel.renameActiveExercise(exName, nameText)
+                                }
+                            }
+                            androidx.compose.foundation.text.BasicTextField(
+                                value = nameText,
+                                onValueChange = { nameText = it },
+                                singleLine = true,
+                                textStyle = androidx.compose.ui.text.TextStyle(
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                ),
+                                cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
+                                modifier = Modifier.weight(1f)
                             )
 
                             // Add exercise set shortcut
@@ -256,8 +268,8 @@ fun ActiveWorkoutScreen(
                                     modifier = Modifier
                                         .weight(1f)
                                         .padding(horizontal = 4.dp)
-                                        .background(Color(0xFF101010), RoundedCornerShape(8.dp))
-                                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(8.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(8.dp))
+                                        .background(Color(0xFF1C1C1E), RoundedCornerShape(8.dp))
+                                        .border(1.dp, BorderColor, RoundedCornerShape(8.dp))
                                         .padding(vertical = 12.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -291,8 +303,8 @@ fun ActiveWorkoutScreen(
                                     modifier = Modifier
                                         .weight(1f)
                                         .padding(horizontal = 4.dp)
-                                        .background(Color(0xFF101010), RoundedCornerShape(8.dp))
-                                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(8.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(8.dp))
+                                        .background(Color(0xFF1C1C1E), RoundedCornerShape(8.dp))
+                                        .border(1.dp, BorderColor, RoundedCornerShape(8.dp))
                                         .padding(vertical = 12.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -339,6 +351,14 @@ fun ActiveWorkoutScreen(
                                 }
                             }
                         }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(BorderColorSubtle)
+                        )
                     }
                 }
 

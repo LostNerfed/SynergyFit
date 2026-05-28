@@ -604,6 +604,32 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun renameActiveExercise(oldName: String, newName: String) {
+        if (newName.trim().isEmpty() || oldName == newName) return
+        val currentLogs = _activeLogs.value.toMutableList()
+        var updatedAny = false
+        val capitalized = newName.trim().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        for (i in currentLogs.indices) {
+            if (currentLogs[i].exerciseName == oldName) {
+                currentLogs[i] = currentLogs[i].copy(exerciseName = capitalized)
+                updatedAny = true
+            }
+        }
+        if (updatedAny) {
+            _activeLogs.value = currentLogs
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    dbWriteMutex.withLock {
+                        val targets = currentLogs.filter { it.exerciseName == capitalized }
+                        repository.insertSessionLogs(targets)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error in renameActiveExercise to DB directly", e)
+                }
+            }
+        }
+    }
+
     fun deleteActiveSetLog(id: Int) {
         viewModelScope.launch {
             try {

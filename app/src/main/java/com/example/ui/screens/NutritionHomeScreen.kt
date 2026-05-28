@@ -608,10 +608,11 @@ fun UnifiedMealCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(46.dp)
+                .border(1.dp, Color(0xFFB388FF).copy(alpha = 0.5f), RoundedCornerShape(10.dp))
                 .testTag("unified_log_meal_button"),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black,
+                containerColor = Color(0xFFB388FF).copy(alpha = 0.15f),
+                contentColor = Color(0xFFB388FF),
                 disabledContainerColor = BorderColorSubtle,
                 disabledContentColor = TextSecundario
             ),
@@ -620,7 +621,7 @@ fun UnifiedMealCard(
             if (mealAnalysisLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(18.dp),
-                    color = Color.Black,
+                    color = Color(0xFFB388FF),
                     strokeWidth = 2.dp
                 )
             } else {
@@ -728,6 +729,14 @@ fun MealCategorySection(
     var expanded by remember { mutableStateOf(true) }
     val totalCal = meals.sumOf { it.totalCalories }
 
+    val catColor = when(categoryName) {
+        "Desayuno" -> Color(0xFFFFEB3B)
+        "Almuerzo" -> Color(0xFFFF9800)
+        "Cena" -> Color(0xFF64B5F6) // Using lighter blue instead of indigo for dark mode
+        "Snack" -> Color(0xFF4CAF50)
+        else -> Color.White
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -737,33 +746,35 @@ fun MealCategorySection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(10.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(10.dp))
+                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(10.dp))
+                .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(10.dp))
                 .clip(RoundedCornerShape(10.dp))
-                .clickable { expanded = !expanded }
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .clickable { expanded = !expanded },
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = categoryName,
-                tint = Color.White,
-                modifier = Modifier.size(14.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = categoryName,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.weight(1f)
-            )
+            Box(modifier = Modifier.width(6.dp).height(44.dp).background(catColor))
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 14.dp, end = 12.dp, top = 10.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = categoryName,
+                    tint = catColor,
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = categoryName, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
             Text(
                 text = "$totalCal kcal",
-                fontSize = 12.sp,
-                color = TextSecundario,
-                fontWeight = FontWeight.Medium
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                modifier = Modifier.padding(end = 12.dp)
             )
-            Spacer(modifier = Modifier.width(6.dp))
             Icon(
                 imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                 contentDescription = if (expanded) "Colapsar" else "Expandir",

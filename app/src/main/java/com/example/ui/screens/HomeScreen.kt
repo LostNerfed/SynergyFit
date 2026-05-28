@@ -56,6 +56,7 @@ fun HomeScreen(
     val selectedDateMeals by viewModel.selectedDateMeals.collectAsState()
     val routines by viewModel.routines.collectAsState()
     val allLogs by viewModel.allLogs.collectAsState()
+    val sessions by viewModel.sessions.collectAsState()
 
     var showPersonalizeSheet by remember { mutableStateOf(false) }
     var showStartWorkoutSheet by remember { mutableStateOf(false) }
@@ -97,21 +98,44 @@ fun HomeScreen(
                             text = "Hola, ${settings.username}",
                             fontSize = 26.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            style = androidx.compose.ui.text.TextStyle(
+                                brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                                    colors = listOf(Color.White, Color(0xFF00E5FF))
+                                )
+                            )
                         )
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        // Contador Mensual de Entrenamientos
+                        val currentMonthValue = java.time.LocalDate.now().monthValue
+                        val currentYearValue = java.time.LocalDate.now().year
+                        val monthlyWorkouts = sessions.count {
+                            val d = java.time.Instant.ofEpochMilli(it.dateMillis).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                            d.monthValue == currentMonthValue && d.year == currentYearValue
+                        }
+                        
+                        Box(
+                            modifier = Modifier
+                                .background(Color(0xFF00E676).copy(alpha = 0.15f), RoundedCornerShape(12.dp))
+                                .border(1.dp, Color(0xFF00E676).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "$monthlyWorkouts en el mes", color = Color(0xFF00E676), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+
                         IconButton(
                             onClick = { showPersonalizeSheet = true },
                             modifier = Modifier
-                                .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
+                                .background(Color(0xFFB388FF).copy(alpha = 0.2f), CircleShape)
+                                .border(1.dp, Color(0xFFB388FF).copy(alpha = 0.5f), CircleShape)
                                 .size(40.dp)
                                 .testTag("personalize_button")
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AutoAwesome,
                                 contentDescription = "Personalizar IA",
-                                tint = Color.White,
+                                tint = Color(0xFFB388FF),
                                 modifier = Modifier.size(18.dp)
                             )
                         }
@@ -134,107 +158,142 @@ fun HomeScreen(
                 }
             }
 
-            // Circular progress meters
+            // Fila 1: Nutrición y Racha (Grid 2x2)
             item {
+                val today = java.time.LocalDate.now()
+                val logsByDate = sessions.groupBy { 
+                    java.time.Instant.ofEpochMilli(it.dateMillis).atZone(java.time.ZoneId.systemDefault()).toLocalDate() 
+                }
+                
+                var currentStreak = 0
+                var checkDate = today
+                if (!logsByDate.containsKey(today) && logsByDate.containsKey(today.minusDays(1))) {
+                    checkDate = today.minusDays(1)
+                }
+                while (logsByDate.containsKey(checkDate)) {
+                    currentStreak++
+                    checkDate = checkDate.minusDays(1)
+                }
+
+                val dayOfWeek = today.dayOfWeek.value // 1 = Monday, 7 = Sunday
+                val startOfWeek = today.minusDays((dayOfWeek - 1).toLong())
+
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
-                        .padding(20.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Circle 1: Calories
+                    // Tarjeta A: Calorías (1x1)
                     Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(150.dp)
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
+                            .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(110.dp)) {
-                            Canvas(modifier = Modifier.size(90.dp)) {
-                                drawCircle(
-                                    color = BorderColorSubtle,
-                                    style = Stroke(width = 16.dp.toPx())
-                                )
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(80.dp)) {
+                            Canvas(modifier = Modifier.size(80.dp)) {
+                                drawCircle(color = BorderColorSubtle, style = Stroke(width = 10.dp.toPx()))
                                 drawArc(
                                     color = Color.White,
                                     startAngle = -90f,
                                     sweepAngle = calRatio * 360f,
                                     useCenter = false,
-                                    style = Stroke(width = 16.dp.toPx(), cap = StrokeCap.Round)
+                                    style = Stroke(width = 10.dp.toPx(), cap = StrokeCap.Round)
                                 )
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text = "$consumedCalories",
-                                    fontSize = 18.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "kcal",
-                                    fontSize = 11.sp,
-                                    color = TextSecundario
-                                )
+                                Text(text = "$consumedCalories", fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                                Text(text = "kcal", fontSize = 10.sp, color = TextSecundario)
                             }
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Calorías",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = TextSecundario
-                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(text = "Calorías", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextSecundario)
                     }
 
-                    // Vertical Divider
-                    Box(
-                        modifier = Modifier
-                            .height(60.dp)
-                            .width(1.dp)
-                            .background(BorderColor)
-                    )
-
-                    // Circle 2: Volume
+                    // Tarjeta B: Racha y Volumen (1x1)
                     Column(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(150.dp)
+                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
+                            .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
+                            .padding(14.dp),
+                        verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(110.dp)) {
-                            Canvas(modifier = Modifier.size(90.dp)) {
-                                drawCircle(
-                                    color = BorderColorSubtle,
-                                    style = Stroke(width = 16.dp.toPx())
-                                )
-                                drawArc(
-                                    color = Color.White,
-                                    startAngle = -90f,
-                                    sweepAngle = volRatio * 360f,
-                                    useCenter = false,
-                                    style = Stroke(width = 16.dp.toPx(), cap = StrokeCap.Round)
-                                )
+                        // Header: Flame + Streak | Icon
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(imageVector = Icons.Default.LocalFireDepartment, contentDescription = "Racha", tint = Color(0xFFFF5252), modifier = Modifier.size(24.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Column(verticalArrangement = Arrangement.Center) {
+                                    Text(text = "RACHA", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = TextSecundario, letterSpacing = 1.sp)
+                                    Text(text = "$currentStreak DÍAS", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                }
                             }
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                val displayVol = if (totalVolume >= 1000) String.format(Locale.getDefault(), "%.1fk", totalVolume/1000) else "${totalVolume.toInt()}"
-                                Text(
-                                    text = displayVol,
-                                    fontSize = 18.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "kg",
-                                    fontSize = 11.sp,
-                                    color = TextSecundario
-                                )
+                            Icon(imageVector = Icons.Default.FitnessCenter, contentDescription = "Entrenamiento", tint = TextSecundario, modifier = Modifier.size(16.dp))
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Weekly dots
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            val daysInitials = listOf("L", "M", "M", "J", "V", "S", "D")
+                            (0..6).forEach { offset ->
+                                val date = startOfWeek.plusDays(offset.toLong())
+                                val trained = logsByDate.containsKey(date)
+                                val isToday = date == today
+                                
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .background(
+                                                color = if (trained) Color(0xFF00E676) else if (isToday) Color.Transparent else BorderColorSubtle,
+                                                shape = CircleShape
+                                            )
+                                            .border(
+                                                width = if (isToday && !trained) 1.5.dp else 0.dp,
+                                                color = if (isToday && !trained) Color.White else Color.Transparent,
+                                                shape = CircleShape
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (trained) {
+                                            Icon(imageVector = Icons.Default.Check, contentDescription = null, tint = AmoledBg, modifier = Modifier.size(10.dp))
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(text = daysInitials[offset], fontSize = 8.sp, color = TextSecundario)
+                                }
                             }
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Registro Semanal",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = TextSecundario
-                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Volume Progress
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(text = "VOLUMEN", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = TextSecundario, letterSpacing = 1.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
+                                Row(verticalAlignment = Alignment.Bottom) {
+                                    Text(text = "${totalVolume.toInt()}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                    Text(text = "/10k", fontSize = 10.sp, color = TextSecundario, modifier = Modifier.padding(bottom = 2.dp))
+                                }
+                                Text(text = "${(volRatio * 100).toInt()}%", fontSize = 10.sp, color = TextSecundario, modifier = Modifier.padding(bottom = 2.dp))
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            LinearProgressIndicator(
+                                progress = volRatio,
+                                modifier = Modifier.fillMaxWidth().height(4.dp).clip(CircleShape),
+                                color = Color(0xFF00E676),
+                                trackColor = BorderColorSubtle,
+                                strokeCap = StrokeCap.Round
+                            )
+                        }
                     }
                 }
             }
@@ -257,7 +316,7 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .height(110.dp)
+                            .height(150.dp)
                             .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
                             .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
                             .padding(12.dp),
@@ -268,13 +327,19 @@ fun HomeScreen(
                             horizontalArrangement = Arrangement.End
                         ) {
                             IconButton(
-                                onClick = { isEditingWeight = !isEditingWeight },
+                                onClick = {
+                                    if (isEditingWeight) {
+                                        val wt = weightInput.toDoubleOrNull() ?: settings.bodyWeight
+                                        viewModel.updateSettings(settings.copy(bodyWeight = wt))
+                                    }
+                                    isEditingWeight = !isEditingWeight
+                                },
                                 modifier = Modifier.size(24.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Editar peso",
-                                    tint = TextSecundario,
+                                    imageVector = if (isEditingWeight) Icons.Default.Check else Icons.Default.Edit,
+                                    contentDescription = if (isEditingWeight) "Guardar peso" else "Editar peso",
+                                    tint = Color(0xFF00E5FF),
                                     modifier = Modifier.size(16.dp)
                                 )
                             }
@@ -282,6 +347,7 @@ fun HomeScreen(
 
                         Column(
                             verticalArrangement = Arrangement.Bottom,
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             if (!isEditingWeight) {
@@ -302,44 +368,51 @@ fun HomeScreen(
                                     )
                                 }
                             } else {
-                                OutlinedTextField(
-                                    value = weightInput,
-                                    onValueChange = { weightInput = it },
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    singleLine = true,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(48.dp),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = Color.White,
-                                        unfocusedTextColor = Color.White,
-                                        focusedBorderColor = androidx.compose.ui.graphics.Color.White,
-                                        unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
-                                        cursorColor = Color.White,
-                                        focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                                        unfocusedContainerColor = com.example.ui.theme.AmoledSurface
-                                    ),
-                                    shape = RoundedCornerShape(12.dp),
-                                    keyboardActions = KeyboardActions(
-                                        onDone = {
-                                            val wt = weightInput.toDoubleOrNull() ?: settings.bodyWeight
-                                            viewModel.updateSettings(settings.copy(bodyWeight = wt))
-                                            isEditingWeight = false
-                                        }
+                                Row(verticalAlignment = Alignment.Bottom) {
+                                    androidx.compose.foundation.text.BasicTextField(
+                                        value = weightInput,
+                                        onValueChange = { weightInput = it },
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        singleLine = true,
+                                        textStyle = androidx.compose.ui.text.TextStyle(
+                                            fontSize = 26.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        ),
+                                        cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
+                                        modifier = Modifier
+                                            .width(75.dp),
+                                        keyboardActions = KeyboardActions(
+                                            onDone = {
+                                                val wt = weightInput.toDoubleOrNull() ?: settings.bodyWeight
+                                                viewModel.updateSettings(settings.copy(bodyWeight = wt))
+                                                isEditingWeight = false
+                                            }
+                                        )
                                     )
-                                )
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Text(
+                                        text = "kg",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = TextSecundario,
+                                        modifier = Modifier.padding(bottom = 6.dp)
+                                    )
+                                }
                             }
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Peso",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = Color.White,
+                                textAlign = TextAlign.Center
                             )
                             Text(
                                 text = "Corporal",
                                 fontSize = 11.sp,
-                                color = TextSecundario
+                                color = TextSecundario,
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
@@ -348,7 +421,7 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier
                             .weight(1f)
-                            .height(110.dp)
+                            .height(150.dp)
                             .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
                             .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
                             .clickable { showStartWorkoutSheet = true }
@@ -362,14 +435,14 @@ fun HomeScreen(
                             Box(
                                 modifier = Modifier
                                     .size(32.dp)
-                                    .background(com.example.ui.theme.AmoledBg, CircleShape)
-                                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape),
+                                    .background(Color(0xFFFF9800).copy(alpha = 0.2f), CircleShape)
+                                    .border(1.dp, Color(0xFFFF9800).copy(alpha = 0.5f), CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.PlayArrow,
                                     contentDescription = "Iniciar",
-                                    tint = Color.White,
+                                    tint = Color(0xFFFF9800),
                                     modifier = Modifier.size(16.dp)
                                 )
                             }
@@ -377,20 +450,23 @@ fun HomeScreen(
 
                         Column(
                             verticalArrangement = Arrangement.Bottom,
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
                                 text = "Iniciar",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = Color.White,
+                                textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Rutina",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = Color.White,
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
