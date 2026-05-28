@@ -117,7 +117,7 @@ fun NutritionHomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
-                .padding(16.dp)
+                .padding(12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -157,7 +157,7 @@ fun NutritionHomeScreen(
                 strokeCap = StrokeCap.Round
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // Detail of Proteínas, Carbohidratos y Grasas linear progress bars
             Row(
@@ -188,6 +188,35 @@ fun NutritionHomeScreen(
             }
         }
 
+        // ── Consumo Semanal (always visible) ──
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp))
+                .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                .padding(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.BarChart,
+                    contentDescription = "Semanal",
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Consumo semanal",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            WeeklyNutritionBarChart(weeklyCaloriesMap)
+        }
         // ── Registrar alimento (collapsible button) ──
         Column(
             modifier = Modifier
@@ -307,51 +336,6 @@ fun NutritionHomeScreen(
             }
         }
 
-        // ── Consumo Semanal (collapsible) ──
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp))
-                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable { showWeeklyChart = !showWeeklyChart }
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.BarChart,
-                    contentDescription = "Semanal",
-                    tint = if (showWeeklyChart) Color.White else TextSecundario,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = "Consumo semanal",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (showWeeklyChart) Color.White else TextSecundario
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(
-                    imageVector = if (showWeeklyChart) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = TextSecundario,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-
-            AnimatedVisibility(visible = showWeeklyChart) {
-                Box(modifier = Modifier.padding(top = 8.dp)) {
-                    WeeklyNutritionBarChart(weeklyCaloriesMap)
-                }
-            }
-        }
-
         Spacer(modifier = Modifier.height(100.dp))
     }
 }
@@ -365,15 +349,16 @@ fun MacroProgressWidget(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
-            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(8.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(8.dp))
-            .padding(10.dp)
+        modifier = modifier.padding(vertical = 4.dp, horizontal = 2.dp)
     ) {
-        Text(text = title, fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Medium)
+        Text(text = title, fontSize = 10.sp, color = TextSecundario, fontWeight = FontWeight.Medium)
+        Spacer(modifier = Modifier.height(2.dp))
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(text = amount, fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = "de $target", fontSize = 9.sp, color = TextSecundario, modifier = Modifier.padding(bottom = 1.dp))
+        }
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = amount, fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
-        Text(text = "de $target", fontSize = 10.sp, color = TextSecundario)
-        Spacer(modifier = Modifier.height(6.dp))
         LinearProgressIndicator(
             progress = { ratio },
             modifier = Modifier
@@ -456,9 +441,8 @@ fun WeeklyNutritionBarChart(weeklyCaloriesMap: Map<String, Int>) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
-            .padding(16.dp)
-            .height(130.dp),
+            .padding(vertical = 4.dp)
+            .height(70.dp),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.Bottom
     ) {
@@ -486,7 +470,7 @@ fun WeeklyNutritionBarChart(weeklyCaloriesMap: Map<String, Int>) {
                 Canvas(
                     modifier = Modifier
                         .fillMaxWidth(0.5f)
-                        .height(70.dp * heightPercent)
+                        .height(40.dp * heightPercent)
                 ) {
                     drawRect(
                         color = if (calories > 0) Color.White else BorderColorSubtle,

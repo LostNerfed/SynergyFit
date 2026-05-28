@@ -12,8 +12,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,6 +43,7 @@ fun CalendarScreen(
 
     var calendarMonth by remember { mutableStateOf(Calendar.getInstance()) }
     var selectedWorkDate by remember { mutableStateOf<Calendar>(Calendar.getInstance()) }
+    var expandedSessions by remember { mutableStateOf(setOf<Int>()) }
 
     val formattedSelectedDateString = remember(selectedWorkDate) {
         val format = SimpleDateFormat("yyyy-MM-dd", Locale("es", "ES"))
@@ -184,6 +190,7 @@ fun CalendarScreen(
                                             color = if (hasWorkout) Color.White else Color.Transparent,
                                             shape = CircleShape
                                         )
+                                        .clip(CircleShape)
                                         .clickable { selectedWorkDate = calVal },
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -227,6 +234,7 @@ fun CalendarScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(100.dp)
                         .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
                         .padding(32.dp),
                     contentAlignment = Alignment.Center
@@ -242,12 +250,18 @@ fun CalendarScreen(
         } else {
             items(selectedDaySessions) { session ->
                 val sessionLogs = logs.filter { it.sessionId == session.id }
+                val isExpanded = expandedSessions.contains(session.id)
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .animateContentSize()
                         .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
-                        .padding(16.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            expandedSessions = if (isExpanded) expandedSessions.minus(session.id) else expandedSessions.plus(session.id)
+                        }
+                        .padding(12.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -270,56 +284,69 @@ fun CalendarScreen(
                             )
                         }
 
-                        Box(
-                            modifier = Modifier
-                                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(6.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = "${session.durationMinutes} min",
-                                fontSize = 11.sp,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(6.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = "${session.durationMinutes} min",
+                                    fontSize = 11.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(
+                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = null,
+                                tint = TextSecundario,
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    AnimatedVisibility(visible = isExpanded) {
+                        Column {
+                            Spacer(modifier = Modifier.height(12.dp))
 
-                    // Group logs by exercise for neat nested representation
-                    val groupedLogs = sessionLogs.groupBy { it.exerciseName }
-                    groupedLogs.forEach { (exName, list) ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp)
-                        ) {
-                            Text(
-                                text = exName,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 13.sp,
-                                color = Color.White
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            // Group logs by exercise for neat nested representation
+                            val groupedLogs = sessionLogs.groupBy { it.exerciseName }
+                            groupedLogs.forEach { (exName, list) ->
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 6.dp)
+                                ) {
+                                    Text(
+                                        text = exName,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 13.sp,
+                                        color = Color.White
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
 
-                            // Print neat sets row
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                list.forEach { sLog ->
-                                    val logLabel = if (sLog.isDropset) "DS" else "S${sLog.setIndex}"
-                                    Box(
-                                        modifier = Modifier
-                                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(4.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(4.dp))
-                                            .background(BorderColorSubtle)
-                                            .padding(horizontal = 6.dp, vertical = 4.dp)
+                                    // Print neat sets row
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        Text(
-                                            text = "$logLabel: ${sLog.weightKg}kg x${sLog.reps}",
-                                            fontSize = 9.sp,
-                                            color = Color.White
-                                        )
+                                        list.forEach { sLog ->
+                                            val logLabel = if (sLog.isDropset) "DS" else "S${sLog.setIndex}"
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(4.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(4.dp))
+                                                    .background(BorderColorSubtle)
+                                                    .padding(horizontal = 6.dp, vertical = 4.dp)
+                                            ) {
+                                                Text(
+                                                    text = "$logLabel: ${sLog.weightKg}kg x${sLog.reps}",
+                                                    fontSize = 9.sp,
+                                                    color = Color.White
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
