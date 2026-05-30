@@ -403,7 +403,7 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Peso",
-                                fontSize = 13.sp,
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
                                 textAlign = TextAlign.Center
@@ -455,7 +455,7 @@ fun HomeScreen(
                         ) {
                             Text(
                                 text = "Iniciar",
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
                                 textAlign = TextAlign.Center
@@ -463,7 +463,7 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Rutina",
-                                fontSize = 12.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
                                 textAlign = TextAlign.Center
@@ -730,94 +730,63 @@ fun CoachSetupContent(
 
         // API Key Input
         Text(text = "Clave API (API Key)", fontSize = 13.sp, color = TextSecundario)
-        OutlinedTextField(
-            value = apiKeyInput,
-            onValueChange = { apiKeyInput = it },
-            placeholder = { Text("Introduce tu clave api...", color = TextSecundario, fontSize = 12.sp) },
-            singleLine = true,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 6.dp)
-                .testTag("api_key_field"),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                cursorColor = Color.White,
-                focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent),
-            shape = RoundedCornerShape(12.dp)
-        )
+                .liquidGlassModifier(RoundedCornerShape(12.dp))
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            if (apiKeyInput.isEmpty()) {
+                Text("Introduce tu clave api...", color = TextSecundario, fontSize = 12.sp)
+            }
+            androidx.compose.foundation.text.BasicTextField(
+                value = apiKeyInput,
+                onValueChange = { apiKeyInput = it },
+                singleLine = true,
+                textStyle = LocalTextStyle.current.copy(
+                    color = Color.White,
+                    fontSize = 14.sp
+                ),
+                cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
+                modifier = Modifier.fillMaxWidth().testTag("api_key_field")
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         // Fitness Goal Selector
         Text(text = "Objetivo Fitness Principal", fontSize = 13.sp, color = TextSecundario)
         Spacer(modifier = Modifier.height(6.dp))
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // First 3 goals
-            goalsList.take(3).forEach { goal ->
+            goalsList.forEach { goal ->
                 val isSelected = goal == selectedGoal
                 Box(
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth()
                         .background(
-                            if (isSelected) Color.White else Color.Transparent,
+                            if (isSelected) Color.White.copy(alpha = 0.97f) else Color.Transparent,
                             RoundedCornerShape(8.dp)
                         )
                         .border(
                             1.dp,
-                            if (isSelected) Color.White else BorderColor,
+                            if (isSelected) Color.White.copy(alpha = 0.97f) else BorderColor,
                             RoundedCornerShape(8.dp)
                         )
                         .clip(RoundedCornerShape(8.dp))
                         .clickable { selectedGoal = goal }
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
+                        .padding(vertical = 12.dp, horizontal = 16.dp),
+                    contentAlignment = Alignment.CenterStart
                 ) {
                     Text(
                         text = goal,
                         color = if (isSelected) Color.Black else Color.White,
-                        fontSize = 11.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // Remaining 3 goals
-            goalsList.takeLast(3).forEach { goal ->
-                val isSelected = goal == selectedGoal
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(
-                            if (isSelected) Color.White else Color.Transparent,
-                            RoundedCornerShape(8.dp)
-                        )
-                        .border(
-                            1.dp,
-                            if (isSelected) Color.White else BorderColor,
-                            RoundedCornerShape(8.dp)
-                        )
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable { selectedGoal = goal }
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = goal,
-                        color = if (isSelected) Color.Black else Color.White,
-                        fontSize = 11.sp,
-                        textAlign = TextAlign.Center
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
@@ -827,26 +796,30 @@ fun CoachSetupContent(
 
         // Target Calories Input
         Text(text = "Meta de Calorías Diarias (kcal)", fontSize = 13.sp, color = TextSecundario)
-        OutlinedTextField(
-            value = targetCaloriesInput,
-            onValueChange = { targetCaloriesInput = it },
-            placeholder = { Text("Ej. 2500", color = TextSecundario, fontSize = 12.sp) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp)
-                .testTag("target_calories_field"),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                cursorColor = Color.White,
-                focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
-                unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent),
-            shape = RoundedCornerShape(12.dp)
-        )
+                .liquidGlassModifier(RoundedCornerShape(12.dp))
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            if (targetCaloriesInput.isEmpty()) {
+                Text("Ej. 2500", color = TextSecundario, fontSize = 12.sp)
+            }
+            androidx.compose.foundation.text.BasicTextField(
+                value = targetCaloriesInput,
+                onValueChange = { targetCaloriesInput = it },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                textStyle = LocalTextStyle.current.copy(
+                    color = Color.White,
+                    fontSize = 14.sp
+                ),
+                cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
+                modifier = Modifier.fillMaxWidth().testTag("target_calories_field")
+            )
+        }
 
         Spacer(modifier = Modifier.height(12.dp))
 

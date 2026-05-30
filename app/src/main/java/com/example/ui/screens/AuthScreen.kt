@@ -4,6 +4,7 @@ import com.example.ui.theme.liquidGlassModifier
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -22,10 +23,11 @@ import com.example.ui.theme.TextSecundario
 
 @Composable
 fun AuthScreen(
-    onLoginSuccess: (String) -> Unit
+    onLoginSuccess: (String, Boolean) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
+    var isLbs by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -103,14 +105,58 @@ fun AuthScreen(
                 )
             }
 
+            // Unit Selector
             Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(
+                            if (!isLbs) Color.White.copy(alpha = 0.97f) else Color.Transparent,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .border(
+                            1.dp,
+                            if (!isLbs) Color.White.copy(alpha = 0.97f) else BorderColor,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .clickable { isLbs = false }
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Kilogramos (kg)", color = if (!isLbs) Color.Black else Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(
+                            if (isLbs) Color.White.copy(alpha = 0.97f) else Color.Transparent,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .border(
+                            1.dp,
+                            if (isLbs) Color.White.copy(alpha = 0.97f) else BorderColor,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .clickable { isLbs = true }
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Libras (lbs)", color = if (isLbs) Color.Black else Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
                     if (name.trim().isEmpty()) {
                         error = "Por favor introduce un nombre válido"
                     } else {
-                        onLoginSuccess(name.trim())
+                        onLoginSuccess(name.trim(), isLbs)
                     }
                 },
                 modifier = Modifier

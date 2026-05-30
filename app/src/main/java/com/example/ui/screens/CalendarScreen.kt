@@ -349,7 +349,7 @@ fun CalendarScreen(
                                                     color = TextSecundario
                                                 )
                                                 Text(
-                                                    text = "${sLog.weightKg} kg  ×  ${sLog.reps} reps",
+                                                    text = "${viewModel.formatDisplayWeight(sLog.weightKg)} ${viewModel.getUnitString().lowercase()}  ×  ${sLog.reps} reps",
                                                     fontSize = 12.sp,
                                                     fontWeight = FontWeight.Bold,
                                                     color = Color.White

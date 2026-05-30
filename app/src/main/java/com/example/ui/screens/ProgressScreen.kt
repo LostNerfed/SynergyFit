@@ -328,7 +328,7 @@ fun ProgressScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(horizontalAlignment = Alignment.End) {
                                 Text(text = "RÉCORD", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = TextSecundario)
-                                Text(text = "${bestRecord.weight} kg x ${bestRecord.reps}", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                                Text(text = "${viewModel.formatDisplayWeight(bestRecord.weight)} ${viewModel.getUnitString().lowercase()} x ${bestRecord.reps}", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Icon(
@@ -382,7 +382,7 @@ fun ProgressScreen(
                                     }
                                     if (bestSetOfSession != null) {
                                         Text(
-                                            text = "Mejor: ${bestSetOfSession.weightKg} kg x ${bestSetOfSession.reps}",
+                                            text = "Mejor: ${viewModel.formatDisplayWeight(bestSetOfSession.weightKg)} ${viewModel.getUnitString().lowercase()} x ${bestSetOfSession.reps}",
                                             fontSize = 12.sp,
                                             color = Color.White,
                                             fontWeight = FontWeight.Bold

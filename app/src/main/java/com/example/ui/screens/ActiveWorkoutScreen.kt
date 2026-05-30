@@ -217,7 +217,7 @@ fun ActiveWorkoutScreen(
                         // Column heads
                         Row(modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)) {
                             Text(text = "SERIE", modifier = Modifier.width(60.dp), fontSize = 10.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
-                            Text(text = "KG", modifier = Modifier.weight(1f), fontSize = 10.sp, color = TextSecundario, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+                            Text(text = viewModel.getUnitString(), modifier = Modifier.weight(1f), fontSize = 10.sp, color = TextSecundario, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                             Text(text = "REPS", modifier = Modifier.weight(1f), fontSize = 10.sp, color = TextSecundario, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                             Spacer(modifier = Modifier.width(36.dp)) // space for delete action
                         }
@@ -244,13 +244,14 @@ fun ActiveWorkoutScreen(
                                     }
                                 }
 
-                                // KG Input
-                                var weightText by remember(sLog.id) { mutableStateOf(if (sLog.weightKg > 0) sLog.weightKg.toString() else "") }
+                                // KG/LBS Input
+                                var weightText by remember(sLog.id) { mutableStateOf(viewModel.formatDisplayWeight(sLog.weightKg)) }
                                 LaunchedEffect(weightText) {
                                     delay(400)
                                     val parseWt = weightText.toDoubleOrNull() ?: 0.0
-                                    if (parseWt != sLog.weightKg) {
-                                        viewModel.updateActiveSetWeight(sLog.id, parseWt)
+                                    val storageWt = viewModel.getStorageWeight(parseWt)
+                                    if (kotlin.math.abs(storageWt - sLog.weightKg) > 0.01) {
+                                        viewModel.updateActiveSetWeight(sLog.id, storageWt)
                                     }
                                 }
                                 Box(

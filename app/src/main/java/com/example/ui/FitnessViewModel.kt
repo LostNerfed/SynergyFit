@@ -116,7 +116,14 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
     private val _localBackupsList = MutableStateFlow<List<String>>(emptyList())
     val localBackupsList: StateFlow<List<String>> = _localBackupsList.asStateFlow()
 
+    // Unit Preference (KG/LBS)
+    private val _isLbs = MutableStateFlow(false)
+    val isLbs: StateFlow<Boolean> = _isLbs.asStateFlow()
+
     init {
+        // Load preference
+        val prefs = app.getSharedPreferences("SynergyFitPrefs", android.content.Context.MODE_PRIVATE)
+        _isLbs.value = prefs.getBoolean("useLbs", false)
         // Build initial settings record if none exists
         viewModelScope.launch {
             val s = repository.getSettingsSync() ?: FitSettings()
@@ -168,13 +175,38 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     // Auth and settings helper
-    fun loginLocalUser(name: String) {
+    fun loginLocalUser(name: String, isLbsPref: Boolean) {
         viewModelScope.launch {
             val current = settingsState.value
             val updated = current.copy(username = name)
             repository.saveSettings(updated)
+            
+            app.getSharedPreferences("SynergyFitPrefs", android.content.Context.MODE_PRIVATE)
+                .edit().putBoolean("useLbs", isLbsPref).apply()
+            _isLbs.value = isLbsPref
+            
             _isUserLoggedIn.value = true
         }
+    }
+
+    // Weight Conversion Utils
+    fun getDisplayWeight(weightKg: Double): Double {
+        return if (_isLbs.value) weightKg * 2.20462 else weightKg
+    }
+
+    fun getStorageWeight(displayWeight: Double): Double {
+        return if (_isLbs.value) displayWeight / 2.20462 else displayWeight
+    }
+
+    fun getUnitString(): String {
+        return if (_isLbs.value) "LBS" else "KG"
+    }
+
+    fun formatDisplayWeight(weightKg: Double): String {
+        if (weightKg <= 0.0) return ""
+        val d = getDisplayWeight(weightKg)
+        val s = String.format(java.util.Locale.US, "%.1f", d)
+        return if (s.endsWith(".0")) s.substringBefore(".") else s
     }
 
     fun logout() {

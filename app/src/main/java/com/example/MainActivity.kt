@@ -74,8 +74,8 @@ class MainActivity : ComponentActivity() {
                     if (!isUserLoggedIn) {
                         // Registration / Landing
                         AuthScreen(
-                            onLoginSuccess = { name ->
-                                viewModel.loginLocalUser(name)
+                            onLoginSuccess = { name, isLbs ->
+                                viewModel.loginLocalUser(name, isLbs)
                             }
                         )
                     } else if (activeSession != null) {
