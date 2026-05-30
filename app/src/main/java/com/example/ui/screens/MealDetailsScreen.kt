@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -50,7 +52,7 @@ fun MealDetailsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AmoledBg)
+            .background(Color.Transparent)
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -65,7 +67,7 @@ fun MealDetailsScreen(
                 onClick = onBack,
                 modifier = Modifier.size(36.dp)
             ) {
-                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
@@ -87,7 +89,7 @@ fun MealDetailsScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
+                .liquidGlassModifier(RoundedCornerShape(16.dp))
                 .padding(16.dp)
         ) {
             Text(
@@ -120,7 +122,7 @@ fun MealDetailsScreen(
                     focusedBorderColor = androidx.compose.ui.graphics.Color.White,
                     unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                     cursorColor = Color.White
-                , focusedContainerColor = com.example.ui.theme.AmoledSurface, unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
+                , focusedContainerColor = Color(0x05FFFFFF), unfocusedContainerColor = Color(0x05FFFFFF))
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -171,7 +173,7 @@ fun MealDetailsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                    .liquidGlassModifier(RoundedCornerShape(12.dp))
                     .padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -192,7 +194,7 @@ fun MealDetailsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                            .liquidGlassModifier(RoundedCornerShape(12.dp))
                             .padding(14.dp)
                     ) {
                         Row(

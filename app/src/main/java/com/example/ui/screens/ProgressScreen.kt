@@ -40,7 +40,7 @@ fun ProgressScreen(
     val sessions by viewModel.sessions.collectAsState()
     val logs by viewModel.allLogs.collectAsState()
 
-    var showAllPRs by remember { mutableStateOf(false) }
+
     var showAllExercises by remember { mutableStateOf(false) }
 
     // 1. Calculate Grid 2x2 Stats
@@ -55,7 +55,7 @@ fun ProgressScreen(
 
     // Active days and streaks
     val datesTrained = sessions.map {
-        SimpleDateFormat("yyyy-MM-dd", Locale("es", "ES")).format(Date(it.dateMillis))
+        SimpleDateFormat("yyyy-MM-dd", Locale.Builder().setLanguage("es").setRegion("ES").build()).format(Date(it.dateMillis))
     }.distinct().sortedDescending()
 
     val activeDaysCount = datesTrained.size
@@ -67,17 +67,20 @@ fun ProgressScreen(
         logs.forEach { log ->
             val exName = log.exerciseName
             val existing = records[exName]
-            val currentVolume = log.weightKg * log.reps
-            val existingVolume = if (existing != null) existing.weight * existing.reps else 0.0
-            if (existing == null || currentVolume > existingVolume) {
+            val currentWeight = log.weightKg
+            val currentReps = log.reps
+            val isNewPR = existing == null || 
+                          currentWeight > existing.weight || 
+                          (currentWeight == existing.weight && currentReps > existing.reps)
+            if (isNewPR) {
                 records[exName] = RecordData(
-                    weight = log.weightKg,
-                    reps = log.reps,
+                    weight = currentWeight,
+                    reps = currentReps,
                     dateMillis = sessions.firstOrNull { it.id == log.sessionId }?.dateMillis ?: System.currentTimeMillis()
                 )
             }
         }
-        records.entries.toList().sortedByDescending { it.value.weight * it.value.reps }
+        records.entries.toList().sortedWith(compareByDescending<Map.Entry<String, RecordData>> { it.value.weight }.thenByDescending { it.value.reps })
     }
 
     // 3. Exercise lists
@@ -88,7 +91,7 @@ fun ProgressScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(AmoledBg)
+            .background(Color.Transparent)
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
@@ -132,8 +135,7 @@ fun ProgressScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
-                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
+                    .liquidGlassModifier(RoundedCornerShape(24.dp))
                     .padding(20.dp)
             ) {
                 // Compact Header and Stats
@@ -177,8 +179,8 @@ fun ProgressScreen(
                         ) {
                             // Month title centered
                             Text(
-                                text = ym.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale("es", "ES"))
-                                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(java.util.Locale("es", "ES")) else it.toString() },
+                                text = ym.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.Builder().setLanguage("es").setRegion("ES").build())
+                                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(java.util.Locale.Builder().setLanguage("es").setRegion("ES").build()) else it.toString() },
                                 color = Color.White,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
@@ -201,7 +203,8 @@ fun ProgressScreen(
                                                 Text(
                                                     text = label,
                                                     color = TextSecundario,
-                                                    fontSize = 8.sp,
+                                                    fontSize = 7.sp,
+                                                    lineHeight = 7.sp,
                                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                                 )
                                             }
@@ -254,10 +257,10 @@ fun ProgressScreen(
             }
         }
 
-        // Personal Records Section Header
+        // Historial de Ejercicios y Récords
         item {
             Text(
-                text = "Récords Personales (PRs)",
+                text = "Ejercicios y Récords Personales",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -270,117 +273,36 @@ fun ProgressScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                        .liquidGlassModifier(RoundedCornerShape(12.dp))
                         .padding(24.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "Completa entrenamientos para ver tus records.", color = TextSecundario, fontSize = 12.sp)
+                    Text(text = "Completa entrenamientos para ver tus registros.", color = TextSecundario, fontSize = 12.sp)
                 }
             }
         } else {
-            val visiblePRs = if (showAllPRs) personalRecordsMap.toList() else personalRecordsMap.toList().take(2)
-            itemsIndexed(visiblePRs) { index, pair ->
-                val name = pair.key
-                val record = pair.value
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        val trophyColor = when (index) {
-                            0 -> Color(0xFFFFD700) // Oro
-                            1 -> Color(0xFFC0C0C0) // Plata
-                            2 -> Color(0xFFCD7F32) // Bronce
-                            else -> TextSecundario
-                        }
-                        Icon(imageVector = Icons.Default.EmojiEvents, contentDescription = "Trophy", tint = trophyColor, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column {
-                            Text(text = name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
-                            val dateStr = SimpleDateFormat("dd MMM, yyyy", Locale("es", "ES")).format(Date(record.dateMillis))
-                            Text(text = dateStr, fontSize = 11.sp, color = TextSecundario)
-                        }
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .background(BorderColorSubtle, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 8.dp, vertical = 4.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "${record.weight} kg",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = Color.White
-                            )
-                        }
-                        Text(
-                            text = "x ${record.reps} reps",
-                            fontSize = 12.sp,
-                            color = TextSecundario,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-            }
-            if (personalRecordsMap.size > 2) {
-                item {
-                    TextButton(
-                        onClick = { showAllPRs = !showAllPRs },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF64B5F6))
-                    ) {
-                        Text(text = if (showAllPRs) "Ver menos" else "Ver más récords", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-        }
-
-        // Historial segment per exercise Header
-        item {
-            Text(
-                text = "Historial por Ejercicio",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp)
-            )
-        }
-
-        if (exercisesGroupedByLogName.isEmpty()) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Aún no has registrado ejercicios.", color = TextSecundario, fontSize = 12.sp)
-                }
-            }
-        } else {
-            val visibleExercises = if (showAllExercises) exercisesGroupedByLogName.keys.toList() else exercisesGroupedByLogName.keys.take(2)
-            items(visibleExercises) { exerciseName ->
-                var isExpanded by remember { mutableStateOf(false) }
+            val sortedExercises = personalRecordsMap.toList()
+            val visibleExercises = if (showAllExercises) sortedExercises else sortedExercises.take(2)
+            
+            itemsIndexed(visibleExercises) { index, pair ->
+                val exerciseName = pair.key
+                val bestRecord = pair.value
                 val currentLogs = exercisesGroupedByLogName[exerciseName] ?: emptyList()
+                
+                val logsBySession = currentLogs.groupBy { it.sessionId }
+                val recentSessions = logsBySession.entries.sortedByDescending { sessionEntry -> 
+                    sessions.firstOrNull { it.id == sessionEntry.key }?.dateMillis ?: 0L 
+                }.take(3)
+
+                var isExpanded by remember { mutableStateOf(false) }
 
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                        .liquidGlassModifier(RoundedCornerShape(12.dp))
                         .clip(RoundedCornerShape(12.dp))
                         .clickable { isExpanded = !isExpanded }
-                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -388,27 +310,33 @@ fun ProgressScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.FitnessCenter, contentDescription = "Ejercicio", tint = Color(0xFFFF9800), modifier = Modifier.size(16.dp))
+                            val trophyColor = when (index) {
+                                0 -> Color(0xFFFFD700)
+                                1 -> Color(0xFFC0C0C0)
+                                2 -> Color(0xFFCD7F32)
+                                else -> Color(0xFFFF9800)
+                            }
+                            Icon(imageVector = Icons.Default.EmojiEvents, contentDescription = "Exercise", tint = trophyColor, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text(
-                                    text = exerciseName,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "Registrado ${currentLogs.size} veces",
-                                    fontSize = 11.sp,
-                                    color = TextSecundario
-                                )
+                                Text(text = exerciseName, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
+                                val dateStr = SimpleDateFormat("dd MMM, yy", Locale.Builder().setLanguage("es").setRegion("ES").build()).format(Date(bestRecord.dateMillis))
+                                Text(text = dateStr, fontSize = 11.sp, color = TextSecundario)
                             }
                         }
-                        Icon(
-                            imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                            contentDescription = "Expand",
-                            tint = Color.White
-                        )
+                        
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(text = "RÉCORD", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = TextSecundario)
+                                Text(text = "${bestRecord.weight} kg x ${bestRecord.reps}", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(
+                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = "Expand",
+                                tint = Color.White
+                            )
+                        }
                     }
 
                     AnimatedVisibility(visible = isExpanded) {
@@ -418,52 +346,47 @@ fun ProgressScreen(
                                 .padding(top = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            // Simple linear chart of weights!
-                            val displayRecordWeights = currentLogs.map { it.weightKg }.takeLast(10)
-                            if (displayRecordWeights.size > 1) {
-                                Text(
-                                    text = "Tendencia de Peso (Últimas series)",
-                                    fontSize = 11.sp,
-                                    color = TextSecundario,
-                                    modifier = Modifier.padding(bottom = 4.dp)
-                                )
-                                ProgressLineSparkline(weights = displayRecordWeights)
-                                Spacer(modifier = Modifier.height(10.dp))
-                            }
+                            Text(
+                                text = "Últimos Entrenamientos",
+                                fontSize = 11.sp,
+                                color = TextSecundario,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            
+                            recentSessions.forEach { sessionEntry ->
+                                val sessionLogs = sessionEntry.value
+                                val sessionDate = sessions.firstOrNull { it.id == sessionEntry.key }?.dateMillis ?: 0L
+                                val dateString = SimpleDateFormat("dd MMM, yy", Locale.Builder().setLanguage("es").setRegion("ES").build()).format(Date(sessionDate))
+                                
+                                val bestSetOfSession = sessionLogs.maxWithOrNull(compareBy<com.example.data.database.SessionLog> { it.weightKg }.thenBy { it.reps })
+                                
+                                val isPRSession = bestSetOfSession != null && 
+                                                  bestSetOfSession.weightKg == bestRecord.weight && 
+                                                  bestSetOfSession.reps == bestRecord.reps &&
+                                                  sessionDate == bestRecord.dateMillis
 
-                            // Individual logged set rows
-                            currentLogs.takeLast(15).reversed().forEach { log ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(BorderColorSubtle, RoundedCornerShape(6.dp))
-                                        .padding(8.dp),
+                                        .liquidGlassModifier(RoundedCornerShape(8.dp))
+                                        .padding(10.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(
-                                            text = if (log.isDropset) "Dropset" else "S${log.setIndex}",
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = if (log.isDropset) Color.White else TextSecundario
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(
-                                            text = "${log.weightKg} kg x ${log.reps} reps",
-                                            fontSize = 12.sp,
-                                            color = Color.White
-                                        )
-                                    }
-
-                                    if (log.isDropset) {
-                                        Box(
-                                            modifier = Modifier
-                                                .border(1.dp, Color.White, RoundedCornerShape(4.dp))
-                                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                                        ) {
-                                            Text(text = "DROPSET", fontSize = 8.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                                        Text(text = dateString, fontSize = 12.sp, color = TextSecundario)
+                                        if (isPRSession) {
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Icon(imageVector = Icons.Default.LocalFireDepartment, contentDescription = "PR", tint = Color(0xFFFF5252), modifier = Modifier.size(12.dp))
                                         }
+                                    }
+                                    if (bestSetOfSession != null) {
+                                        Text(
+                                            text = "Mejor: ${bestSetOfSession.weightKg} kg x ${bestSetOfSession.reps}",
+                                            fontSize = 12.sp,
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
                                     }
                                 }
                             }
@@ -471,7 +394,7 @@ fun ProgressScreen(
                     }
                 }
             }
-            if (exercisesGroupedByLogName.size > 2) {
+            if (personalRecordsMap.size > 2) {
                 item {
                     TextButton(
                         onClick = { showAllExercises = !showAllExercises },
@@ -498,7 +421,7 @@ fun StatCard(
 ) {
     Column(
         modifier = modifier
-            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+            .liquidGlassModifier(RoundedCornerShape(12.dp))
             .padding(14.dp)
     ) {
         Row(
@@ -556,7 +479,7 @@ fun ProgressLineSparkline(weights: List<Double>) {
 // Calculate streak based on consecutive unique dates
 fun calculateStreak(dates: List<String>): Int {
     if (dates.isEmpty()) return 0
-    val format = SimpleDateFormat("yyyy-MM-dd", Locale("es", "ES"))
+    val format = SimpleDateFormat("yyyy-MM-dd", Locale.Builder().setLanguage("es").setRegion("ES").build())
     val parsedDates = dates.mapNotNull {
         try { format.parse(it) } catch (e: Exception) { null }
     }.sortedDescending()

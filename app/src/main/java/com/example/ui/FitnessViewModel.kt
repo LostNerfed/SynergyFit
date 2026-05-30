@@ -879,6 +879,73 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
+    suspend fun exportRoutinesJson(): String = withContext(Dispatchers.IO) {
+        try {
+            val routinesList = routines.value
+            val exportedRoutines = routinesList.map { routine ->
+                val exercises = repository.getExercisesForRoutineSync(routine.id)
+                val exportedExercises = exercises.map { ex ->
+                    ExportedPlanExercise(
+                        exerciseName = ex.exerciseName,
+                        targetSets = ex.targetSets,
+                        orderIndex = ex.orderIndex
+                    )
+                }
+                ExportedRoutine(
+                    name = routine.name,
+                    description = routine.description,
+                    exercises = exportedExercises
+                )
+            }
+            val exportData = ExportData(routines = exportedRoutines)
+            val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+            return@withContext moshi.adapter(ExportData::class.java).toJson(exportData)
+        } catch (e: Exception) {
+            return@withContext "{\"error\": \"${e.localizedMessage}\"}"
+        }
+    }
+
+    suspend fun importRoutinesJson(jsonStr: String): Pair<Boolean, String> = withContext(Dispatchers.IO) {
+        try {
+            val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+            val exportData = moshi.adapter(ExportData::class.java).fromJson(jsonStr)
+            
+            if (exportData == null || exportData.routines.isEmpty()) {
+                return@withContext false to "Archivo JSON no contiene rutinas válidas."
+            }
+            
+            var importedCount = 0
+            
+            exportData.routines.forEach { expRoutine ->
+                val newRoutineId = repository.insertRoutine(Routine(name = expRoutine.name, description = expRoutine.description))
+                
+                val newExercises = expRoutine.exercises.map { expEx ->
+                    PlanExercise(
+                        routineId = newRoutineId.toInt(),
+                        exerciseName = expEx.exerciseName,
+                        targetSets = expEx.targetSets,
+                        orderIndex = expEx.orderIndex
+                    )
+                }
+                repository.insertPlanExercises(newExercises)
+                
+                newExercises.forEach {
+                    try {
+                        repository.insertExercise(Exercise(name = it.exerciseName))
+                    } catch (e: Exception) {
+                        // Ignored
+                    }
+                }
+                
+                importedCount++
+            }
+            
+            return@withContext true to "$importedCount rutinas importadas exitosamente."
+        } catch (e: Exception) {
+            return@withContext false to "Error leyendo el archivo: ${e.localizedMessage}"
+        }
+    }
+
     fun clearAllData() {
         viewModelScope.launch {
             repository.clearAllData()

@@ -46,14 +46,14 @@ fun CalendarScreen(
     var expandedSessions by remember { mutableStateOf(setOf<Int>()) }
 
     val formattedSelectedDateString = remember(selectedWorkDate) {
-        val format = SimpleDateFormat("yyyy-MM-dd", Locale("es", "ES"))
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.Builder().setLanguage("es").setRegion("ES").build())
         format.format(selectedWorkDate.time)
     }
 
     // Sessions logged on the selected calendar date
     val selectedDaySessions = remember(sessions, formattedSelectedDateString) {
         sessions.filter {
-            val sDateStr = SimpleDateFormat("yyyy-MM-dd", Locale("es", "ES")).format(Date(it.dateMillis))
+            val sDateStr = SimpleDateFormat("yyyy-MM-dd", Locale.Builder().setLanguage("es").setRegion("ES").build()).format(Date(it.dateMillis))
             sDateStr == formattedSelectedDateString
         }
     }
@@ -61,11 +61,11 @@ fun CalendarScreen(
     // Days with saved workouts in the visible month
     val daysWithWorkoutsInMonthSet = remember(sessions, calendarMonth) {
         val set = mutableSetOf<Int>()
-        val formatMonth = SimpleDateFormat("yyyy-MM", Locale("es", "ES"))
+        val formatMonth = SimpleDateFormat("yyyy-MM", Locale.Builder().setLanguage("es").setRegion("ES").build())
         val visibleMonthStr = formatMonth.format(calendarMonth.time)
 
         sessions.forEach { s ->
-            val sMonthStr = SimpleDateFormat("yyyy-MM", Locale("es", "ES")).format(Date(s.dateMillis))
+            val sMonthStr = SimpleDateFormat("yyyy-MM", Locale.Builder().setLanguage("es").setRegion("ES").build()).format(Date(s.dateMillis))
             if (sMonthStr == visibleMonthStr) {
                 val cal = Calendar.getInstance()
                 cal.timeInMillis = s.dateMillis
@@ -78,7 +78,7 @@ fun CalendarScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(AmoledBg)
+            .background(Color.Transparent)
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
@@ -101,7 +101,7 @@ fun CalendarScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val formatMonthHeader = SimpleDateFormat("MMMM yyyy", Locale("es", "ES"))
+                val formatMonthHeader = SimpleDateFormat("MMMM yyyy", Locale.Builder().setLanguage("es").setRegion("ES").build())
                 val monthTitle = formatMonthHeader.format(calendarMonth.time).replaceFirstChar { it.uppercase() }
 
                 Text(
@@ -118,7 +118,7 @@ fun CalendarScreen(
                             nextMock.add(Calendar.MONTH, -1)
                             calendarMonth = nextMock
                         },
-                        modifier = Modifier.background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape).size(36.dp)
+                        modifier = Modifier.liquidGlassModifier(CircleShape).size(36.dp)
                     ) {
                         Icon(imageVector = Icons.Default.ChevronLeft, contentDescription = "Prev Month", tint = Color.White)
                     }
@@ -129,7 +129,7 @@ fun CalendarScreen(
                             nextMock.add(Calendar.MONTH, 1)
                             calendarMonth = nextMock
                         },
-                        modifier = Modifier.background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape).size(36.dp)
+                        modifier = Modifier.liquidGlassModifier(CircleShape).size(36.dp)
                     ) {
                         Icon(imageVector = Icons.Default.ChevronRight, contentDescription = "Next Month", tint = Color.White)
                     }
@@ -142,7 +142,7 @@ fun CalendarScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
+                    .liquidGlassModifier(RoundedCornerShape(16.dp))
                     .padding(12.dp)
             ) {
                 // Day initials
@@ -173,7 +173,7 @@ fun CalendarScreen(
                                 val dayNum = calVal.get(Calendar.DAY_OF_MONTH)
                                 val hasWorkout = daysWithWorkoutsInMonthSet.contains(dayNum)
 
-                                val calCompareFormat = SimpleDateFormat("yyyy-MM-dd", Locale("es", "ES"))
+                                val calCompareFormat = SimpleDateFormat("yyyy-MM-dd", Locale.Builder().setLanguage("es").setRegion("ES").build())
                                 val isSelected = calCompareFormat.format(calVal.time) == formattedSelectedDateString
 
                                 Box(
@@ -187,7 +187,7 @@ fun CalendarScreen(
                                         )
                                         .border(
                                             width = if (hasWorkout && !isSelected) 1.dp else 0.dp,
-                                            color = if (hasWorkout) Color.White else Color.Transparent,
+                                            color = if (hasWorkout) Color(0xFFFF5252) else Color.Transparent,
                                             shape = CircleShape
                                         )
                                         .clip(CircleShape)
@@ -205,7 +205,7 @@ fun CalendarScreen(
                                             Box(
                                                 modifier = Modifier
                                                     .size(4.dp)
-                                                    .background(Color.White, CircleShape)
+                                                    .background(Color(0xFFFF5252), CircleShape)
                                             )
                                         }
                                     }
@@ -219,7 +219,7 @@ fun CalendarScreen(
 
         // Details of selected Day below
         item {
-            val displayTitleDate = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "ES")).format(selectedWorkDate.time).replaceFirstChar { it.uppercase() }
+            val displayTitleDate = SimpleDateFormat("EEEE, d 'de' MMMM", Locale.Builder().setLanguage("es").setRegion("ES").build()).format(selectedWorkDate.time).replaceFirstChar { it.uppercase() }
             Text(
                 text = "Sesiones de: $displayTitleDate",
                 fontSize = 14.sp,
@@ -235,7 +235,7 @@ fun CalendarScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(100.dp)
-                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                        .liquidGlassModifier(RoundedCornerShape(12.dp))
                         .padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -256,7 +256,7 @@ fun CalendarScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .animateContentSize()
-                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                        .liquidGlassModifier(RoundedCornerShape(12.dp))
                         .clip(RoundedCornerShape(12.dp))
                         .clickable {
                             expandedSessions = if (isExpanded) expandedSessions.minus(session.id) else expandedSessions.plus(session.id)
@@ -287,7 +287,7 @@ fun CalendarScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
-                                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(6.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(6.dp))
+                                    .liquidGlassModifier(RoundedCornerShape(6.dp))
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 Text(
@@ -327,22 +327,31 @@ fun CalendarScreen(
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
 
-                                    // Print neat sets row
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    // Print neat sets vertical list inside a liquid glass container
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .liquidGlassModifier(RoundedCornerShape(12.dp))
+                                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                                        verticalArrangement = Arrangement.spacedBy(6.dp)
                                     ) {
                                         list.forEach { sLog ->
-                                            val logLabel = if (sLog.isDropset) "DS" else "S${sLog.setIndex}"
-                                            Box(
-                                                modifier = Modifier
-                                                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(4.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(4.dp))
-                                                    .background(BorderColorSubtle)
-                                                    .padding(horizontal = 6.dp, vertical = 4.dp)
+                                            val logLabel = if (sLog.isDropset) "Dropset" else "Serie ${sLog.setIndex}"
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Text(
-                                                    text = "$logLabel: ${sLog.weightKg}kg x${sLog.reps}",
-                                                    fontSize = 9.sp,
+                                                    text = logLabel,
+                                                    fontSize = 12.sp,
+                                                    fontWeight = FontWeight.Medium,
+                                                    color = TextSecundario
+                                                )
+                                                Text(
+                                                    text = "${sLog.weightKg} kg  ×  ${sLog.reps} reps",
+                                                    fontSize = 12.sp,
+                                                    fontWeight = FontWeight.Bold,
                                                     color = Color.White
                                                 )
                                             }

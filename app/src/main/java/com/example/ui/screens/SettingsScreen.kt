@@ -9,6 +9,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -44,17 +47,17 @@ fun SettingsScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(AmoledBg),
-        containerColor = AmoledBg,
+            .background(Color.Transparent),
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = { Text(text = "Ajustes de SynergyFit", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = AmoledBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         }
     ) { innerPadding ->
@@ -72,7 +75,7 @@ fun SettingsScreen(
                 Text(text = "SECCIÓN INTELIGENCIA ARTIFICIAL", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextSecundario)
                 Spacer(modifier = Modifier.height(8.dp))
                 Column(
-                    modifier = Modifier.fillMaxWidth().background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                    modifier = Modifier.fillMaxWidth().liquidGlassModifier(RoundedCornerShape(12.dp))
                 ) {
                     SettingItemRow(
                         title = "Configurar Coach IA",
@@ -89,7 +92,7 @@ fun SettingsScreen(
                 Text(text = "DATOS Y COPIAS DE SEGURIDAD (BACKUP)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextSecundario)
                 Spacer(modifier = Modifier.height(8.dp))
                 Column(
-                    modifier = Modifier.fillMaxWidth().background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                    modifier = Modifier.fillMaxWidth().liquidGlassModifier(RoundedCornerShape(12.dp))
                 ) {
                     SettingItemRow(
                         title = "Exportar Base de Datos a JSON",
@@ -122,7 +125,7 @@ fun SettingsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                            .liquidGlassModifier(RoundedCornerShape(12.dp))
                             .background(BorderColorSubtle)
                             .padding(14.dp)
                     ) {
@@ -152,7 +155,7 @@ fun SettingsScreen(
                 Text(text = "COPIAS DE SEGURIDAD LOCALES", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextSecundario)
                 Spacer(modifier = Modifier.height(8.dp))
                 Column(
-                    modifier = Modifier.fillMaxWidth().background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                    modifier = Modifier.fillMaxWidth().liquidGlassModifier(RoundedCornerShape(12.dp))
                 ) {
                     SettingItemRow(
                         title = "Generar Copia de Seguridad Local",
@@ -245,7 +248,7 @@ fun SettingsScreen(
                     SettingItemRow(
                         title = "Cerrar sesión",
                         sub = "Cierra la sesión y vacía tu perfil del dispositivo.",
-                        icon = Icons.Default.Logout,
+                        icon = Icons.AutoMirrored.Filled.Logout,
                         onClick = {
                             viewModel.logout()
                             onBack()
@@ -261,7 +264,7 @@ fun SettingsScreen(
         if (showCoachSetupSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showCoachSetupSheet = false },
-                containerColor = AmoledSurface,
+                containerColor = Color(0xF0040A18),
                 dragHandle = { BottomSheetDefaults.DragHandle(color = BorderColor) }
             ) {
                 CoachSetupContent(
@@ -297,7 +300,7 @@ fun SettingsScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = AmoledSurface,
+                containerColor = Color(0xF0040A18),
                 titleContentColor = Color.White,
                 textContentColor = Color.White
             )

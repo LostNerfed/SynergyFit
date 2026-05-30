@@ -17,6 +17,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -76,8 +78,8 @@ fun HomeScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(AmoledBg),
-        containerColor = AmoledBg,
+            .background(Color.Transparent),
+        containerColor = Color.Transparent,
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -143,7 +145,7 @@ fun HomeScreen(
                         IconButton(
                             onClick = onNavigateToSettings,
                             modifier = Modifier
-                                .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
+                                .liquidGlassModifier(CircleShape)
                                 .size(40.dp)
                                 .testTag("settings_button")
                         ) {
@@ -187,21 +189,20 @@ fun HomeScreen(
                         modifier = Modifier
                             .weight(1f)
                             .height(150.dp)
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
-                            .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
+                            .liquidGlassModifier(RoundedCornerShape(24.dp))
                             .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(80.dp)) {
                             Canvas(modifier = Modifier.size(80.dp)) {
-                                drawCircle(color = BorderColorSubtle, style = Stroke(width = 10.dp.toPx()))
+                                drawCircle(color = BorderColorSubtle, style = Stroke(width = 14.dp.toPx()))
                                 drawArc(
                                     color = Color.White,
                                     startAngle = -90f,
                                     sweepAngle = calRatio * 360f,
                                     useCenter = false,
-                                    style = Stroke(width = 10.dp.toPx(), cap = StrokeCap.Round)
+                                    style = Stroke(width = 14.dp.toPx(), cap = StrokeCap.Round)
                                 )
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -218,8 +219,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .weight(1f)
                             .height(150.dp)
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
-                            .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
+                            .liquidGlassModifier(RoundedCornerShape(24.dp))
                             .padding(14.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -227,11 +227,11 @@ fun HomeScreen(
                         // Header: Flame + Streak | Icon
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(imageVector = Icons.Default.LocalFireDepartment, contentDescription = "Racha", tint = Color(0xFFFF5252), modifier = Modifier.size(24.dp))
+                                Icon(imageVector = Icons.Default.LocalFireDepartment, contentDescription = "Días", tint = Color(0xFFFF5252), modifier = Modifier.size(24.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Column(verticalArrangement = Arrangement.Center) {
-                                    Text(text = "RACHA", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = TextSecundario, letterSpacing = 1.sp)
-                                    Text(text = "$currentStreak DÍAS", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                    Text(text = "DÍAS", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = TextSecundario, letterSpacing = 1.sp)
+                                    Text(text = "${logsByDate.size} TOTAL", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
                                 }
                             }
                             Icon(imageVector = Icons.Default.FitnessCenter, contentDescription = "Entrenamiento", tint = TextSecundario, modifier = Modifier.size(16.dp))
@@ -287,7 +287,7 @@ fun HomeScreen(
                             }
                             Spacer(modifier = Modifier.height(6.dp))
                             LinearProgressIndicator(
-                                progress = volRatio,
+                                progress = { volRatio },
                                 modifier = Modifier.fillMaxWidth().height(4.dp).clip(CircleShape),
                                 color = Color(0xFF00E676),
                                 trackColor = BorderColorSubtle,
@@ -313,18 +313,17 @@ fun HomeScreen(
                     }
 
                     // Body Weight 1x1 Card
-                    Column(
+                    Box(
                         modifier = Modifier
                             .weight(1f)
                             .height(150.dp)
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
-                            .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
+                            .liquidGlassModifier(RoundedCornerShape(24.dp))
+                            .padding(12.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
+                        // Top-Right Edit Button (absolute overlay)
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.TopEnd
                         ) {
                             IconButton(
                                 onClick = {
@@ -345,10 +344,11 @@ fun HomeScreen(
                             }
                         }
 
+                        // Centered Content
                         Column(
-                            verticalArrangement = Arrangement.Bottom,
+                            verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxSize().padding(top = 12.dp)
                         ) {
                             if (!isEditingWeight) {
                                 Row(verticalAlignment = Alignment.Bottom) {
@@ -364,7 +364,7 @@ fun HomeScreen(
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Medium,
                                         color = TextSecundario,
-                                        modifier = Modifier.padding(bottom = 6.dp)
+                                        modifier = Modifier.padding(bottom = 4.dp)
                                     )
                                 }
                             } else {
@@ -377,11 +377,11 @@ fun HomeScreen(
                                         textStyle = androidx.compose.ui.text.TextStyle(
                                             fontSize = 26.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color.White
+                                            color = Color.White,
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                         ),
                                         cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
-                                        modifier = Modifier
-                                            .width(75.dp),
+                                        modifier = Modifier.width(65.dp),
                                         keyboardActions = KeyboardActions(
                                             onDone = {
                                                 val wt = weightInput.toDoubleOrNull() ?: settings.bodyWeight
@@ -396,7 +396,7 @@ fun HomeScreen(
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Medium,
                                         color = TextSecundario,
-                                        modifier = Modifier.padding(bottom = 6.dp)
+                                        modifier = Modifier.padding(bottom = 4.dp)
                                     )
                                 }
                             }
@@ -418,23 +418,22 @@ fun HomeScreen(
                     }
 
                     // Start Workout 1x1 Card
-                    Column(
+                    Box(
                         modifier = Modifier
                             .weight(1f)
                             .height(150.dp)
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(24.dp))
-                            .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(24.dp))
+                            .liquidGlassModifier(RoundedCornerShape(24.dp))
                             .clickable { showStartWorkoutSheet = true }
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
+                            .padding(12.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
+                        // Top-Right Play Indicator (absolute overlay)
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.TopEnd
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(32.dp)
+                                    .size(28.dp)
                                     .background(Color(0xFFFF9800).copy(alpha = 0.2f), CircleShape)
                                     .border(1.dp, Color(0xFFFF9800).copy(alpha = 0.5f), CircleShape),
                                 contentAlignment = Alignment.Center
@@ -443,15 +442,16 @@ fun HomeScreen(
                                     imageVector = Icons.Default.PlayArrow,
                                     contentDescription = "Iniciar",
                                     tint = Color(0xFFFF9800),
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(14.dp)
                                 )
                             }
                         }
 
+                        // Centered Content
                         Column(
-                            verticalArrangement = Arrangement.Bottom,
+                            verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxSize()
                         ) {
                             Text(
                                 text = "Iniciar",
@@ -480,7 +480,7 @@ fun HomeScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
+                        .liquidGlassModifier(RoundedCornerShape(16.dp))
                         .padding(16.dp)
                 ) {
                     Row(
@@ -538,7 +538,7 @@ fun HomeScreen(
                                 Column(horizontalAlignment = Alignment.Start, modifier = Modifier.fillMaxWidth()) {
                                     Box(
                                         modifier = Modifier
-                                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp, 12.dp, 12.dp, 0.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp, 12.dp, 12.dp, 0.dp))
+                                            .liquidGlassModifier(RoundedCornerShape(12.dp, 12.dp, 12.dp, 0.dp))
                                             .padding(10.dp)
                                     ) {
                                         Text(text = r, color = Color.White, fontSize = 12.sp)
@@ -572,15 +572,16 @@ fun HomeScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(56.dp)
-                                .testTag("coach_chat_input"),
+                                .testTag("coach_chat_input")
+                                .liquidGlassModifier(RoundedCornerShape(12.dp)),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White,
-                                focusedBorderColor = androidx.compose.ui.graphics.Color.White,
-                                unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                                focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                                unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                                 cursorColor = Color.White,
-                                focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                                unfocusedContainerColor = com.example.ui.theme.AmoledSurface),
+                                focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent),
                             shape = RoundedCornerShape(12.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -597,7 +598,7 @@ fun HomeScreen(
                                 .testTag("send_question_button")
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Send,
+                                imageVector = Icons.AutoMirrored.Filled.Send,
                                 contentDescription = "Send",
                                 tint = Color.Black,
                                 modifier = Modifier.size(18.dp)
@@ -616,7 +617,7 @@ fun HomeScreen(
         if (showPersonalizeSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showPersonalizeSheet = false },
-                containerColor = AmoledSurface,
+                containerColor = Color(0xF0040A18),
                 dragHandle = { BottomSheetDefaults.DragHandle(color = BorderColor) }
             ) {
                 CoachSetupContent(
@@ -633,7 +634,7 @@ fun HomeScreen(
         if (showStartWorkoutSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showStartWorkoutSheet = false },
-                containerColor = AmoledSurface,
+                containerColor = Color(0xF0040A18),
                 dragHandle = { BottomSheetDefaults.DragHandle(color = BorderColor) }
             ) {
                 StartWorkoutMenuContent(
@@ -741,11 +742,11 @@ fun CoachSetupContent(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                focusedBorderColor = androidx.compose.ui.graphics.Color.White,
-                unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                 cursorColor = Color.White,
-                focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                unfocusedContainerColor = com.example.ui.theme.AmoledSurface),
+                focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent),
             shape = RoundedCornerShape(12.dp)
         )
 
@@ -839,11 +840,11 @@ fun CoachSetupContent(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                focusedBorderColor = androidx.compose.ui.graphics.Color.White,
-                unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                 cursorColor = Color.White,
-                focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                unfocusedContainerColor = com.example.ui.theme.AmoledSurface),
+                focusedContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                unfocusedContainerColor = androidx.compose.ui.graphics.Color.Transparent),
             shape = RoundedCornerShape(12.dp)
         )
 
@@ -908,7 +909,7 @@ fun StartWorkoutMenuContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                .liquidGlassModifier(RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp))
                 .clickable { onSelectCustom() }
                 .padding(16.dp),
@@ -978,7 +979,7 @@ fun StartWorkoutMenuContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                            .liquidGlassModifier(RoundedCornerShape(12.dp))
                             .clip(RoundedCornerShape(12.dp))
                             .clickable { onSelectRoutine(routine) }
                             .padding(14.dp),
@@ -988,7 +989,7 @@ fun StartWorkoutMenuContent(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
-                                    .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
+                                    .liquidGlassModifier(CircleShape)
                                     .size(36.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -1017,7 +1018,7 @@ fun StartWorkoutMenuContent(
                             }
                         }
                         Icon(
-                            imageVector = Icons.Default.KeyboardArrowRight,
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = "Start",
                             tint = Color.White
                         )

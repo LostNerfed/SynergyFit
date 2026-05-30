@@ -15,6 +15,10 @@ val OutfitFontFamily = FontFamily(
     Font(R.font.outfit_bold, FontWeight.Bold)
 )
 
+val PointlessFontFamily = FontFamily(
+    Font(R.font.pointless, FontWeight.Normal)
+)
+
 val defaultTypography = Typography()
 
 val Typography = Typography(

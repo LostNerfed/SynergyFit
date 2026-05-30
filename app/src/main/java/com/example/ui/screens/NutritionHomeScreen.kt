@@ -72,7 +72,7 @@ fun NutritionHomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AmoledBg)
+            .background(Color.Transparent)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -95,13 +95,13 @@ fun NutritionHomeScreen(
             IconButton(
                 onClick = { viewModel.selectDate(getFormattedToday()) },
                 modifier = Modifier
-                    .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
+                    .liquidGlassModifier(CircleShape)
                     .size(36.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Today,
                     contentDescription = "Today",
-                    tint = Color.White,
+                    tint = Color(0xFF64B5F6),
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -116,7 +116,7 @@ fun NutritionHomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
+                .liquidGlassModifier(RoundedCornerShape(16.dp))
                 .padding(12.dp)
         ) {
             Row(
@@ -192,8 +192,7 @@ fun NutritionHomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp))
-                .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                .liquidGlassModifier(RoundedCornerShape(12.dp))
                 .padding(12.dp)
         ) {
             Row(
@@ -203,7 +202,7 @@ fun NutritionHomeScreen(
                 Icon(
                     imageVector = Icons.Default.BarChart,
                     contentDescription = "Semanal",
-                    tint = Color.White,
+                    tint = Color(0xFFFF9800),
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -227,8 +226,7 @@ fun NutritionHomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp))
-                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                    .liquidGlassModifier(RoundedCornerShape(12.dp))
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { showMealForm = true }
                     .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -237,7 +235,7 @@ fun NutritionHomeScreen(
                 Icon(
                     imageVector = Icons.Default.AddCircleOutline,
                     contentDescription = "Agregar",
-                    tint = Color.White,
+                    tint = Color(0xFF00E676),
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -255,7 +253,7 @@ fun NutritionHomeScreen(
                 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
                 androidx.compose.material3.ModalBottomSheet(
                     onDismissRequest = { showMealForm = false },
-                    containerColor = com.example.ui.theme.AmoledBg,
+                    containerColor = Color.Transparent,
                     scrimColor = Color.Black.copy(alpha = 0.5f),
                     dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle(color = BorderColor) }
                 ) {
@@ -288,8 +286,7 @@ fun NutritionHomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp))
-                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                    .liquidGlassModifier(RoundedCornerShape(12.dp))
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { showMealHistory = !showMealHistory }
                     .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -397,14 +394,14 @@ fun HorizontalDatePicker(
             Box(
                 modifier = Modifier
                     .width(54.dp)
-                    .background(
-                        if (isSelected) Color.White else com.example.ui.theme.AmoledSurface,
-                        RoundedCornerShape(12.dp)
-                    )
-                    .border(
-                        1.dp,
-                        if (isSelected) androidx.compose.ui.graphics.SolidColor(Color.White) else com.example.ui.theme.PremiumGradientBorder,
-                        RoundedCornerShape(12.dp)
+                    .then(
+                        if (isSelected) {
+                            Modifier
+                                .background(Color.White, RoundedCornerShape(12.dp))
+                                .border(1.dp, Color.White, RoundedCornerShape(12.dp))
+                        } else {
+                            Modifier.liquidGlassModifier(RoundedCornerShape(12.dp))
+                        }
                     )
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { onDateSelect(item.dateString) }
@@ -520,7 +517,7 @@ fun UnifiedMealCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
+            .liquidGlassModifier(RoundedCornerShape(16.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -589,8 +586,8 @@ fun UnifiedMealCard(
                 focusedBorderColor = androidx.compose.ui.graphics.Color.White,
                 unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                 cursorColor = Color.White,
-                focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                unfocusedContainerColor = com.example.ui.theme.AmoledSurface),
+                focusedContainerColor = Color(0x05FFFFFF),
+                unfocusedContainerColor = Color(0x05FFFFFF)),
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             maxLines = 4
@@ -689,7 +686,7 @@ fun MealHistoryContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
+            .liquidGlassModifier(RoundedCornerShape(16.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -746,8 +743,7 @@ fun MealCategorySection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(10.dp))
-                .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(10.dp))
+                .liquidGlassModifier(RoundedCornerShape(10.dp))
                 .clip(RoundedCornerShape(10.dp))
                 .clickable { expanded = !expanded },
             verticalAlignment = Alignment.CenterVertically
@@ -876,8 +872,8 @@ fun generateDatesAroundToday(): List<DateItem> {
     val cal = Calendar.getInstance()
     // Go -15 days back and +15 days forward
     val format = SimpleDateFormat("yyyy-MM-dd", Locale.US) // Standard for databases, but keep safe
-    val dayNumFormat = SimpleDateFormat("d", Locale("es", "ES"))
-    val dayOfWeekFormat = SimpleDateFormat("EEE", Locale("es", "ES")) // "lun", "mar"
+    val dayNumFormat = SimpleDateFormat("d", Locale.Builder().setLanguage("es").setRegion("ES").build())
+    val dayOfWeekFormat = SimpleDateFormat("EEE", Locale.Builder().setLanguage("es").setRegion("ES").build()) // "lun", "mar"
 
     cal.add(Calendar.DAY_OF_YEAR, -15)
     for (i in 0 until 31) {
@@ -900,7 +896,7 @@ fun getFormattedToday(): String {
 fun getShortDayName(dateString: String): String {
     return try {
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateString) ?: Date()
-        val format = SimpleDateFormat("EE", Locale("es", "ES")) // "Lu", "Ma", "Mi"
+        val format = SimpleDateFormat("EE", Locale.Builder().setLanguage("es").setRegion("ES").build()) // "Lu", "Ma", "Mi"
         format.format(date).take(3).uppercase()
     } catch (e: Exception) {
         ""

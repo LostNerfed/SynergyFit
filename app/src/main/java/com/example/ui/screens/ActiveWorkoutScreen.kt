@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -52,7 +53,7 @@ fun ActiveWorkoutScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(AmoledBg),
+                .background(Color.Transparent),
             contentAlignment = Alignment.Center
         ) {
             Text(text = "Cargando sesión activa...", color = Color.White)
@@ -84,8 +85,9 @@ fun ActiveWorkoutScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(AmoledBg),
-        containerColor = AmoledBg,
+            .background(Color.Transparent)
+            .imePadding(),
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -120,7 +122,7 @@ fun ActiveWorkoutScreen(
                         Icon(imageVector = Icons.Default.Close, contentDescription = "Cancelar", tint = Color.Red)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = AmoledBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         }
     ) { innerPadding ->
@@ -140,7 +142,7 @@ fun ActiveWorkoutScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                            .liquidGlassModifier(RoundedCornerShape(12.dp))
                             .padding(14.dp)
                     ) {
                         Text(
@@ -189,30 +191,18 @@ fun ActiveWorkoutScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 12.dp)
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            var nameText by remember(exName) { mutableStateOf(exName) }
-                            LaunchedEffect(nameText) {
-                                delay(600)
-                                if (nameText.trim().isNotEmpty() && nameText != exName) {
-                                    viewModel.renameActiveExercise(exName, nameText)
-                                }
-                            }
-                            androidx.compose.foundation.text.BasicTextField(
-                                value = nameText,
-                                onValueChange = { nameText = it },
-                                singleLine = true,
-                                textStyle = androidx.compose.ui.text.TextStyle(
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                ),
-                                cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
+                            Text(
+                                text = exName,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
                                 modifier = Modifier.weight(1f)
                             )
 
@@ -232,12 +222,11 @@ fun ActiveWorkoutScreen(
                             Spacer(modifier = Modifier.width(36.dp)) // space for delete action
                         }
 
-                        // Set rows
                         logsForEx.forEach { sLog ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
+                                    .padding(vertical = 2.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 // Label
@@ -268,9 +257,8 @@ fun ActiveWorkoutScreen(
                                     modifier = Modifier
                                         .weight(1f)
                                         .padding(horizontal = 4.dp)
-                                        .background(Color(0xFF1C1C1E), RoundedCornerShape(8.dp))
-                                        .border(1.dp, BorderColor, RoundedCornerShape(8.dp))
-                                        .padding(vertical = 12.dp),
+                                        .liquidGlassModifier(RoundedCornerShape(8.dp))
+                                        .padding(vertical = 4.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     androidx.compose.foundation.text.BasicTextField(
@@ -303,9 +291,8 @@ fun ActiveWorkoutScreen(
                                     modifier = Modifier
                                         .weight(1f)
                                         .padding(horizontal = 4.dp)
-                                        .background(Color(0xFF1C1C1E), RoundedCornerShape(8.dp))
-                                        .border(1.dp, BorderColor, RoundedCornerShape(8.dp))
-                                        .padding(vertical = 12.dp),
+                                        .liquidGlassModifier(RoundedCornerShape(8.dp))
+                                        .padding(vertical = 4.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     androidx.compose.foundation.text.BasicTextField(
@@ -370,7 +357,7 @@ fun ActiveWorkoutScreen(
                             .fillMaxWidth()
                             .height(48.dp)
                             .testTag("add_exercise_to_active_button"),
-                        border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
+                        border = BorderStroke(1.dp, com.example.ui.theme.BorderColorSubtle),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
                     ) {
@@ -434,7 +421,7 @@ fun ActiveWorkoutScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = AmoledSurface,
+                containerColor = Color(0xF0040A18),
                 titleContentColor = Color.White,
                 textContentColor = Color.White
             )
@@ -464,7 +451,7 @@ fun ActiveWorkoutScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = AmoledSurface,
+                containerColor = Color(0xF0040A18),
                 titleContentColor = Color.White,
                 textContentColor = Color.White
             )
@@ -519,7 +506,7 @@ fun ActiveWorkoutScreen(
                                         .background(if (searchInSuperior) BorderColorSubtle else Color.Transparent)
                                     .clip(RoundedCornerShape(8.dp))
                                     .clickable { searchInSuperior = true }
-                                    .padding(vertical = 8.dp),
+                                    .padding(vertical = 4.dp),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(text = "Parte Superior", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
@@ -535,7 +522,7 @@ fun ActiveWorkoutScreen(
                                         .background(if (!searchInSuperior) BorderColorSubtle else Color.Transparent)
                                     .clip(RoundedCornerShape(8.dp))
                                     .clickable { searchInSuperior = false }
-                                    .padding(vertical = 8.dp),
+                                    .padding(vertical = 4.dp),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(text = "Parte Inferior", fontSize = 11.sp, color = Color.White, fontWeight = FontWeight.Bold)
@@ -554,7 +541,7 @@ fun ActiveWorkoutScreen(
                                         Box(
                                             modifier = Modifier
                                                 .background(BorderColorSubtle, RoundedCornerShape(8.dp))
-                                                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(8.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(8.dp))
+                                                .liquidGlassModifier(RoundedCornerShape(8.dp))
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .clickable { tempAddExerciseName = exObj.name }
                                                 .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -575,14 +562,14 @@ fun ActiveWorkoutScreen(
                             onValueChange = { tempAddExerciseName = it },
                             placeholder = { Text("Manual") },
                             singleLine = true,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().liquidGlassModifier(RoundedCornerShape(12.dp)),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White,
-                                focusedBorderColor = androidx.compose.ui.graphics.Color.White,
-                                unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                                focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                                unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                                 cursorColor = Color.White
-                            , focusedContainerColor = com.example.ui.theme.AmoledSurface, unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
+                            , focusedContainerColor = Color(0x05FFFFFF), unfocusedContainerColor = Color(0x05FFFFFF))
                         )
                     }
                 },
@@ -610,7 +597,7 @@ fun ActiveWorkoutScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = AmoledSurface,
+                containerColor = Color(0xF0040A18),
                 titleContentColor = Color.White,
                 textContentColor = Color.White
             )

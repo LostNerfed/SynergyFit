@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import com.example.ui.theme.liquidGlassModifier
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,7 +30,7 @@ fun AuthScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(AmoledBg)
+            .background(Color.Transparent)
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -40,23 +41,21 @@ fun AuthScreen(
                 .fillMaxWidth()
                 .navigationBarsPadding()
         ) {
-            // Stylized typographic logo
+            // Stylized typographic logo in Pointless font
             Text(
                 text = "SYNERGY",
-                fontSize = 42.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 8.sp,
+                fontFamily = com.example.ui.theme.PointlessFontFamily,
+                fontSize = 46.sp,
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "FIT",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Light,
-                letterSpacing = 16.sp,
+                fontFamily = com.example.ui.theme.PointlessFontFamily,
+                fontSize = 22.sp,
                 color = Color.White,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 40.dp)
+                modifier = Modifier.padding(top = 4.dp, bottom = 40.dp)
             )
 
             OutlinedTextField(
@@ -69,15 +68,16 @@ fun AuthScreen(
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .liquidGlassModifier(RoundedCornerShape(12.dp))
                     .testTag("local_name_input"),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
-                    focusedBorderColor = androidx.compose.ui.graphics.Color.White,
-                    unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
                     cursorColor = Color.White,
-                    focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                    unfocusedContainerColor = com.example.ui.theme.AmoledSurface),
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent),
                 shape = RoundedCornerShape(12.dp)
             )
 
@@ -124,7 +124,7 @@ fun AuthScreen(
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                    .liquidGlassModifier(RoundedCornerShape(12.dp))
                     .padding(16.dp)
             ) {
                 Column {

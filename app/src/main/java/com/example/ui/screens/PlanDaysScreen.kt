@@ -1,7 +1,10 @@
 package com.example.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,6 +16,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,11 +26,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.widget.Toast
+import kotlinx.coroutines.launch
 import com.example.data.database.PlanExercise
 import com.example.data.database.Routine
 import com.example.ui.FitnessViewModel
@@ -38,6 +47,44 @@ fun PlanDaysScreen(
 ) {
     val routines by viewModel.routines.collectAsState()
     val allExercises by viewModel.allExercises.collectAsState()
+
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // Import Launcher
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            coroutineScope.launch {
+                try {
+                    val inputStream = context.contentResolver.openInputStream(uri)
+                    val jsonStr = inputStream?.bufferedReader()?.use { it.readText() }
+                    if (jsonStr != null) {
+                        val result = viewModel.importRoutinesJson(jsonStr)
+                        Toast.makeText(context, result.second, Toast.LENGTH_LONG).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error al leer archivo", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    // Export Launcher
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) {
+            coroutineScope.launch {
+                try {
+                    val jsonStr = viewModel.exportRoutinesJson()
+                    context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                        outputStream.write(jsonStr.toByteArray())
+                    }
+                    Toast.makeText(context, "Rutinas exportadas exitosamente", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error al guardar archivo", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     // Sub-UI state routing
     var selectedRoutineForModelDetails by remember { mutableStateOf<Routine?>(null) }
@@ -73,7 +120,7 @@ fun PlanDaysScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AmoledBg)
+            .background(Color.Transparent)
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -85,8 +132,7 @@ fun PlanDaysScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(32.dp))
-                    .border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(32.dp))
+                    .liquidGlassModifier(RoundedCornerShape(32.dp))
                     .padding(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -131,7 +177,7 @@ fun PlanDaysScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "Tus Rutinas",
                             fontSize = 20.sp,
@@ -145,14 +191,32 @@ fun PlanDaysScreen(
                         )
                     }
 
-                    IconButton(
-                        onClick = { showCreateRoutineDialog = true },
-                        modifier = Modifier
-                            .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
-                            .size(36.dp)
-                            .testTag("add_routine_button")
-                    ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add Routine", tint = Color.White)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        IconButton(
+                            onClick = { importLauncher.launch(arrayOf("application/json", "*/*")) },
+                            modifier = Modifier
+                                .liquidGlassModifier(CircleShape)
+                                .size(36.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.FileDownload, contentDescription = "Importar Rutinas", tint = Color.White, modifier = Modifier.size(18.dp))
+                        }
+                        IconButton(
+                            onClick = { exportLauncher.launch("mis_rutinas.json") },
+                            modifier = Modifier
+                                .liquidGlassModifier(CircleShape)
+                                .size(36.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.FileUpload, contentDescription = "Exportar Rutinas", tint = Color.White, modifier = Modifier.size(18.dp))
+                        }
+                        IconButton(
+                            onClick = { showCreateRoutineDialog = true },
+                            modifier = Modifier
+                                .liquidGlassModifier(CircleShape)
+                                .size(36.dp)
+                                .testTag("add_routine_button")
+                        ) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Routine", tint = Color.White)
+                        }
                     }
                 }
 
@@ -161,7 +225,7 @@ fun PlanDaysScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                            .liquidGlassModifier(RoundedCornerShape(12.dp))
                             .padding(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -212,7 +276,7 @@ fun PlanDaysScreen(
                     IconButton(
                         onClick = { showAddCustomExerciseDialog = true },
                         modifier = Modifier
-                            .background(com.example.ui.theme.AmoledSurface, CircleShape).border(1.dp, com.example.ui.theme.PremiumGradientBorder, CircleShape)
+                            .liquidGlassModifier(CircleShape)
                             .size(36.dp)
                             .testTag("add_custom_exercise_mother_button")
                     ) {
@@ -255,8 +319,8 @@ fun PlanDaysScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(10.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(10.dp))
-                                    .background(AmoledSurface, RoundedCornerShape(10.dp))
+                                    .liquidGlassModifier(RoundedCornerShape(10.dp))
+                                    .liquidGlassModifier(RoundedCornerShape(10.dp))
                                     .padding(horizontal = 14.dp, vertical = 10.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
@@ -278,7 +342,7 @@ fun PlanDaysScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(top = 8.dp, bottom = 6.dp)
                         ) {
-                            Icon(imageVector = Icons.Default.DirectionsRun, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                            Icon(imageVector = Icons.AutoMirrored.Filled.DirectionsRun, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = "PARTE INFERIOR (Pierna / Abdomen)",
@@ -303,8 +367,8 @@ fun PlanDaysScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(10.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(10.dp))
-                                    .background(AmoledSurface, RoundedCornerShape(10.dp))
+                                    .liquidGlassModifier(RoundedCornerShape(10.dp))
+                                    .liquidGlassModifier(RoundedCornerShape(10.dp))
                                     .padding(horizontal = 14.dp, vertical = 10.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
@@ -350,8 +414,8 @@ fun PlanDaysScreen(
                                     focusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                     unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                     cursorColor = Color.White,
-                                    focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                                    unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
+                                    focusedContainerColor = Color(0x05FFFFFF),
+                                    unfocusedContainerColor = Color(0x05FFFFFF))
                             )
 
                             Text(text = "Grupo muscular:", fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
@@ -403,7 +467,7 @@ fun PlanDaysScreen(
                             Text(text = "Cancelar", color = TextSecundario)
                         }
                     },
-                    containerColor = AmoledSurface,
+                    containerColor = Color(0xF0040A18),
                     titleContentColor = Color.White,
                     textContentColor = Color.White
                 )
@@ -424,7 +488,7 @@ fun PlanDaysScreen(
                     onClick = { selectedRoutineForModelDetails = null },
                     modifier = Modifier.size(36.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
@@ -445,7 +509,7 @@ fun PlanDaysScreen(
                     .fillMaxWidth()
                     .height(48.dp)
                     .testTag("start_workout_from_routine_button"),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676), contentColor = Color.Black),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -466,7 +530,7 @@ fun PlanDaysScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                            .liquidGlassModifier(RoundedCornerShape(12.dp))
                             .padding(14.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -521,7 +585,7 @@ fun PlanDaysScreen(
                             .fillMaxWidth()
                             .height(46.dp)
                             .testTag("add_exercise_to_routine_details_button"),
-                        border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
+                        border = BorderStroke(1.dp, com.example.ui.theme.BorderColorSubtle),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
                     ) {
@@ -586,7 +650,7 @@ fun PlanDaysScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .heightIn(max = 200.dp)
-                                        .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                                        .liquidGlassModifier(RoundedCornerShape(12.dp))
                                 ) {
                                     val listScroll = androidx.compose.foundation.rememberScrollState()
                                     Column(
@@ -651,8 +715,8 @@ fun PlanDaysScreen(
                                     focusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                     unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                     cursorColor = Color.White,
-                                    focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                                    unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
+                                    focusedContainerColor = Color(0x05FFFFFF),
+                                    unfocusedContainerColor = Color(0x05FFFFFF))
                             )
 
                             OutlinedTextField(
@@ -669,8 +733,8 @@ fun PlanDaysScreen(
                                     focusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                     unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                                     cursorColor = Color.White,
-                                    focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                                    unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
+                                    focusedContainerColor = Color(0x05FFFFFF),
+                                    unfocusedContainerColor = Color(0x05FFFFFF))
                             )
                         }
                     },
@@ -696,7 +760,7 @@ fun PlanDaysScreen(
                             Text(text = "Aplicar", color = TextSecundario)
                         }
                     },
-                    containerColor = AmoledSurface,
+                    containerColor = Color(0xF0040A18),
                     titleContentColor = Color.White,
                     textContentColor = Color.White
                 )
@@ -735,8 +799,8 @@ fun PlanDaysScreen(
                             focusedBorderColor = androidx.compose.ui.graphics.Color.White,
                             unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                             cursorColor = Color.White,
-                            focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                            unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
+                            focusedContainerColor = Color(0x05FFFFFF),
+                            unfocusedContainerColor = Color(0x05FFFFFF))
                     )
 
                     OutlinedTextField(
@@ -752,8 +816,8 @@ fun PlanDaysScreen(
                             focusedBorderColor = androidx.compose.ui.graphics.Color.White,
                             unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
                             cursorColor = Color.White,
-                            focusedContainerColor = com.example.ui.theme.AmoledSurface,
-                            unfocusedContainerColor = com.example.ui.theme.AmoledSurface)
+                            focusedContainerColor = Color(0x05FFFFFF),
+                            unfocusedContainerColor = Color(0x05FFFFFF))
                     )
 
                     // Exercise selector
@@ -802,7 +866,7 @@ fun PlanDaysScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .heightIn(max = 200.dp)
-                                .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(12.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(12.dp))
+                                .liquidGlassModifier(RoundedCornerShape(12.dp))
                         ) {
                             val listScroll = androidx.compose.foundation.rememberScrollState()
                             Column(
@@ -878,7 +942,7 @@ fun PlanDaysScreen(
                     Text(text = "Cancelar", color = TextSecundario)
                 }
             },
-            containerColor = AmoledSurface,
+            containerColor = Color(0xF0040A18),
             titleContentColor = Color.White,
             textContentColor = Color.White
         )
@@ -900,7 +964,7 @@ fun RoutineRowItem(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(com.example.ui.theme.AmoledSurface, RoundedCornerShape(16.dp)).border(1.dp, com.example.ui.theme.PremiumGradientBorder, RoundedCornerShape(16.dp))
+            .liquidGlassModifier(RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
             .clickable { onClick() }
             .padding(16.dp)
@@ -930,14 +994,15 @@ fun RoutineRowItem(
                 IconButton(
                     onClick = onStartWorkout,
                     modifier = Modifier
-                        .border(1.dp, Color.White, CircleShape)
+                        .background(Color(0xFF00E676).copy(alpha = 0.15f), CircleShape)
+                        .border(1.dp, Color(0xFF00E676), CircleShape)
                         .size(32.dp)
                         .testTag("routine_row_item_play_button")
                 ) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = "Iniciar Entrenamiento",
-                        tint = Color.White,
+                        tint = Color(0xFF00E676),
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -969,7 +1034,7 @@ fun RoutineRowItem(
                 dismissButton = {
                     TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancelar", color = Color.White) }
                 },
-                containerColor = com.example.ui.theme.AmoledSurface
+                containerColor = Color(0xF0040A18)
             )
         }
 

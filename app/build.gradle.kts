@@ -48,6 +48,7 @@ android {
     }
   }
   compileOptions {
+    isCoreLibraryDesugaringEnabled = true
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
   }
@@ -68,6 +69,7 @@ secrets {
 // Some unused dependencies are commented out below instead of being removed.
 // This makes it easy to add them back in the future if needed.
 dependencies {
+  coreLibraryDesugaring(libs.desugar.jdk.libs)
   implementation(platform(libs.androidx.compose.bom))
   implementation(platform(libs.firebase.bom))
   // implementation(libs.accompanist.permissions)
@@ -118,4 +120,17 @@ dependencies {
   debugImplementation(libs.androidx.compose.ui.tooling)
   "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
+}
+
+tasks.register<Copy>("renameApk") {
+    outputs.upToDateWhen { false }
+    from("build/outputs/apk/debug/app-debug.apk")
+    into("../releases")
+    rename { "SynergyFit APP.apk" }
+}
+
+tasks.configureEach {
+    if (name == "assembleDebug") {
+        finalizedBy("renameApk")
+    }
 }

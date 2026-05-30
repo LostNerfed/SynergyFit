@@ -13,6 +13,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -69,10 +70,7 @@ class MainActivity : ComponentActivity() {
                     currentMainTab = "home"
                 }
 
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = AmoledBg
-                ) {
+                SynergyBackground {
                     if (!isUserLoggedIn) {
                         // Registration / Landing
                         AuthScreen(
@@ -109,15 +107,13 @@ class MainActivity : ComponentActivity() {
                     } else {
                         // Standard view with Bottom Tab Navigation amoled bar
                         Scaffold(
-                            containerColor = AmoledBg,
+                            containerColor = Color.Transparent,
                             bottomBar = {
-                                Surface(
-                                    color = com.example.ui.theme.AmoledSurface,
-                                    shape = RoundedCornerShape(32.dp),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, com.example.ui.theme.PremiumGradientBorder),
+                                Box(
                                     modifier = Modifier
                                         .navigationBarsPadding()
                                         .padding(horizontal = 16.dp, vertical = 20.dp)
+                                        .liquidGlassModifier(RoundedCornerShape(32.dp))
                                 ) {
                                     NavigationBar(
                                         containerColor = Color.Transparent,
@@ -167,7 +163,7 @@ class MainActivity : ComponentActivity() {
                                         NavigationBarItem(
                                             selected = currentMainTab == "progress",
                                             onClick = { currentMainTab = "progress" },
-                                            icon = { Icon(imageVector = Icons.Default.ShowChart, contentDescription = "Progreso") },
+                                            icon = { Icon(imageVector = Icons.AutoMirrored.Filled.ShowChart, contentDescription = "Progreso") },
                                             label = { Text("Progreso", fontSize = 10.sp) },
                                             colors = NavigationBarItemDefaults.colors(
                                                 selectedIconColor = Color.White,
