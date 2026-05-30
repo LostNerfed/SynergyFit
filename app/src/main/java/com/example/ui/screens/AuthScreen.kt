@@ -41,22 +41,35 @@ fun AuthScreen(
                 .fillMaxWidth()
                 .navigationBarsPadding()
         ) {
-            // Stylized typographic logo in Pointless font
-            Text(
-                text = "SYNERGY",
-                fontFamily = com.example.ui.theme.PointlessFontFamily,
-                fontSize = 46.sp,
-                color = Color.White,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "FIT",
-                fontFamily = com.example.ui.theme.PointlessFontFamily,
-                fontSize = 22.sp,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 4.dp, bottom = 40.dp)
-            )
+            // Stylized typographic logo in Pointless font (Responsive BoxWithConstraints)
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                val screenWidth = maxWidth
+                val synergyFontSize = (screenWidth.value * 0.11f).coerceIn(24f, 44f).sp
+                val fitFontSize = (synergyFontSize.value * 0.48f).sp
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "SYNERGY",
+                        fontFamily = com.example.ui.theme.PointlessFontFamily,
+                        fontSize = synergyFontSize,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                    Text(
+                        text = "FIT",
+                        fontFamily = com.example.ui.theme.PointlessFontFamily,
+                        fontSize = fitFontSize,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 40.dp)
+                    )
+                }
+            }
 
             OutlinedTextField(
                 value = name,
