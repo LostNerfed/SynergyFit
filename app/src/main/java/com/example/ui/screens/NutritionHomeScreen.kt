@@ -517,6 +517,7 @@ fun UnifiedMealCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(Color(0xFF040A18).copy(alpha = 0.96f), RoundedCornerShape(16.dp))
             .liquidGlassModifier(RoundedCornerShape(16.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
