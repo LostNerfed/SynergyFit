@@ -8,6 +8,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -37,6 +42,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 val viewModel: FitnessViewModel = viewModel()
+                val isInitializing by viewModel.isInitializing.collectAsState()
                 val isUserLoggedIn by viewModel.isUserLoggedIn.collectAsState()
                 val activeSession by viewModel.activeSession.collectAsState()
 
@@ -71,7 +77,10 @@ class MainActivity : ComponentActivity() {
                 }
 
                 SynergyBackground {
-                    if (!isUserLoggedIn) {
+                    if (isInitializing) {
+                        // Empty loading screen (black/background color)
+                        Box(modifier = Modifier.fillMaxSize().background(Color.Transparent))
+                    } else if (!isUserLoggedIn) {
                         // Registration / Landing
                         AuthScreen(
                             onLoginSuccess = { name, isLbs ->
@@ -195,36 +204,44 @@ class MainActivity : ComponentActivity() {
                                     .fillMaxSize()
                                     .padding(innerPadding)
                             ) {
-                                when (currentMainTab) {
-                                    "home" -> HomeScreen(
-                                        viewModel = viewModel,
-                                        onNavigateToSettings = { isSettingsOpen = true },
-                                        onStartActiveWorkout = { routine ->
-                                            viewModel.startActiveWorkout(routine)
-                                        },
-                                        onStartCustomWorkout = {
-                                            viewModel.startCustomActiveWorkout()
-                                        }
-                                    )
-                                    "nutrition" -> NutritionHomeScreen(
-                                        viewModel = viewModel,
-                                        onNavigateToMealDetails = { category, date ->
-                                            activeMealDetailCategory = category
-                                            activeMealDetailDate = date
-                                        }
-                                    )
-                                    "plan" -> PlanDaysScreen(
-                                        viewModel = viewModel,
-                                        onStartRoutineWorkout = { routine ->
-                                            viewModel.startActiveWorkout(routine)
-                                        }
-                                    )
-                                    "progress" -> ProgressScreen(
-                                        viewModel = viewModel
-                                    )
-                                    "calendar" -> CalendarScreen(
-                                        viewModel = viewModel
-                                    )
+                                AnimatedContent(
+                                    targetState = currentMainTab,
+                                    transitionSpec = {
+                                        fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
+                                    },
+                                    label = "tab_transition"
+                                ) { targetTab ->
+                                    when (targetTab) {
+                                        "home" -> HomeScreen(
+                                            viewModel = viewModel,
+                                            onNavigateToSettings = { isSettingsOpen = true },
+                                            onStartActiveWorkout = { routine ->
+                                                viewModel.startActiveWorkout(routine)
+                                            },
+                                            onStartCustomWorkout = {
+                                                viewModel.startCustomActiveWorkout()
+                                            }
+                                        )
+                                        "nutrition" -> NutritionHomeScreen(
+                                            viewModel = viewModel,
+                                            onNavigateToMealDetails = { category, date ->
+                                                activeMealDetailCategory = category
+                                                activeMealDetailDate = date
+                                            }
+                                        )
+                                        "plan" -> PlanDaysScreen(
+                                            viewModel = viewModel,
+                                            onStartRoutineWorkout = { routine ->
+                                                viewModel.startActiveWorkout(routine)
+                                            }
+                                        )
+                                        "progress" -> ProgressScreen(
+                                            viewModel = viewModel
+                                        )
+                                        "calendar" -> CalendarScreen(
+                                            viewModel = viewModel
+                                        )
+                                    }
                                 }
                             }
                         }

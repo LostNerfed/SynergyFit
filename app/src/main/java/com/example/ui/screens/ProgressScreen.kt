@@ -1,6 +1,9 @@
 package com.example.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -108,7 +111,7 @@ fun ProgressScreen(
         }
         // Heatmap Matrix
         item {
-            val totalTrainingsThisYear = sessions.count { 
+            val targetTotalTrainingsThisYear = sessions.count { 
                 java.time.Instant.ofEpochMilli(it.dateMillis).atZone(java.time.ZoneId.systemDefault()).year == java.time.LocalDate.now().year
             }
             
@@ -118,7 +121,22 @@ fun ProgressScreen(
             }.toSet()
             
             val daysPassed = today.dayOfYear
-            val completionPercentage = if (daysPassed > 0) ((totalTrainingsThisYear.toFloat() / daysPassed) * 100).toInt() else 0
+            val targetCompletionPercentage = if (daysPassed > 0) ((targetTotalTrainingsThisYear.toFloat() / daysPassed) * 100).toInt() else 0
+            
+            var animateStats by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) { animateStats = true }
+            
+            val totalTrainingsThisYear by animateIntAsState(
+                targetValue = if (animateStats) targetTotalTrainingsThisYear else 0,
+                animationSpec = tween(800),
+                label = "trainings_anim"
+            )
+            
+            val completionPercentage by animateIntAsState(
+                targetValue = if (animateStats) targetCompletionPercentage else 0,
+                animationSpec = tween(800),
+                label = "completion_anim"
+            )
             
             val monthsToDisplay = remember {
                 val list = mutableListOf<java.time.YearMonth>()

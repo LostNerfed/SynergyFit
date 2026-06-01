@@ -40,6 +40,7 @@ import com.example.data.database.FitSettings
 import com.example.data.database.Routine
 import com.example.ui.FitnessViewModel
 import com.example.ui.theme.*
+import com.example.ui.theme.bounceClick
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -423,7 +424,7 @@ fun HomeScreen(
                             .weight(1f)
                             .height(150.dp)
                             .liquidGlassModifier(RoundedCornerShape(24.dp))
-                            .clickable { showStartWorkoutSheet = true }
+                            .bounceClick { showStartWorkoutSheet = true }
                             .padding(12.dp)
                     ) {
                         // Top-Right Play Indicator (absolute overlay)
@@ -711,8 +712,8 @@ fun CoachSetupContent(
                             if (isSelected) Color.White else BorderColor,
                             RoundedCornerShape(8.dp)
                         )
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable { selectedProvider = provider }
+                        .liquidGlassModifier(RoundedCornerShape(12.dp))
+                        .bounceClick { selectedProvider = provider }
                         .padding(vertical = 10.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -777,8 +778,8 @@ fun CoachSetupContent(
                             if (isSelected) Color.White.copy(alpha = 0.97f) else BorderColor,
                             RoundedCornerShape(8.dp)
                         )
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable { selectedGoal = goal }
+                        .liquidGlassModifier(RoundedCornerShape(12.dp))
+                        .bounceClick { selectedGoal = goal }
                         .padding(vertical = 12.dp, horizontal = 16.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
@@ -882,9 +883,8 @@ fun StartWorkoutMenuContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .liquidGlassModifier(RoundedCornerShape(12.dp))
-                .clip(RoundedCornerShape(12.dp))
-                .clickable { onSelectCustom() }
+                .liquidGlassModifier(RoundedCornerShape(16.dp))
+                .bounceClick { onSelectCustom() }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -952,10 +952,9 @@ fun StartWorkoutMenuContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .liquidGlassModifier(RoundedCornerShape(12.dp))
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable { onSelectRoutine(routine) }
-                            .padding(14.dp),
+                            .liquidGlassModifier(RoundedCornerShape(16.dp))
+                            .bounceClick { onSelectRoutine(routine) }
+                            .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {

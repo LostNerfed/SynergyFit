@@ -109,6 +109,9 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
     val dailyInsightLoading: StateFlow<Boolean> = _dailyInsightLoading.asStateFlow()
 
     // Auth screen profile/local loading
+    private val _isInitializing = MutableStateFlow(true)
+    val isInitializing: StateFlow<Boolean> = _isInitializing.asStateFlow()
+
     private val _isUserLoggedIn = MutableStateFlow(false)
     val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
 
@@ -130,6 +133,7 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
             Log.d(TAG, "Loaded FitSettings: $s")
             // If they already entered username, skip auth screen or proceed
             _isUserLoggedIn.value = s.username != "Usuario" && s.username.trim().isNotEmpty()
+            _isInitializing.value = false
 
             // Delete any existing default preloaded exercises from the database
             val existingEx = repository.getAllExercisesSync()
