@@ -108,6 +108,35 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
     private val _dailyInsightLoading = MutableStateFlow(false)
     val dailyInsightLoading: StateFlow<Boolean> = _dailyInsightLoading.asStateFlow()
 
+    // LBS preference state
+    private val _isLbs = MutableStateFlow(false)
+    val isLbs: StateFlow<Boolean> = _isLbs.asStateFlow()
+
+    // Calculated Maintenance Calories (TDEE)
+    val maintenanceCalories: StateFlow<Int> = combine(settingsState, _isLbs) { settings, lbs ->
+        val weightKg = if (lbs) settings.bodyWeight / 2.20462 else settings.bodyWeight
+        val heightCm = settings.heightCm
+        val age = settings.age
+        val gender = settings.gender
+
+        var bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age)
+        if (gender.lowercase().startsWith("hombre")) {
+            bmr += 5
+        } else {
+            bmr -= 161
+        }
+
+        val pal = when {
+            settings.activityLevel.contains("Ligero", ignoreCase = true) -> 1.375
+            settings.activityLevel.contains("Moderado", ignoreCase = true) -> 1.55
+            settings.activityLevel.contains("Muy Activo", ignoreCase = true) -> 1.9
+            settings.activityLevel.contains("Activo", ignoreCase = true) -> 1.725
+            else -> 1.2
+        }
+
+        (bmr * pal).toInt()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 2000)
+
     // Auth screen profile/local loading
     private val _isInitializing = MutableStateFlow(true)
     val isInitializing: StateFlow<Boolean> = _isInitializing.asStateFlow()
@@ -120,8 +149,6 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
     val localBackupsList: StateFlow<List<String>> = _localBackupsList.asStateFlow()
 
     // Unit Preference (KG/LBS)
-    private val _isLbs = MutableStateFlow(false)
-    val isLbs: StateFlow<Boolean> = _isLbs.asStateFlow()
 
     init {
         // Load preference
@@ -179,10 +206,16 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     // Auth and settings helper
-    fun loginLocalUser(name: String, isLbsPref: Boolean) {
+    fun loginLocalUser(name: String, isLbsPref: Boolean, gender: String, age: Int, heightCm: Double, activityLevel: String) {
         viewModelScope.launch {
             val current = settingsState.value
-            val updated = current.copy(username = name)
+            val updated = current.copy(
+                username = name,
+                gender = gender,
+                age = age,
+                heightCm = heightCm,
+                activityLevel = activityLevel
+            )
             repository.saveSettings(updated)
             
             app.getSharedPreferences("SynergyFitPrefs", android.content.Context.MODE_PRIVATE)

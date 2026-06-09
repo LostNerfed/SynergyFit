@@ -50,6 +50,7 @@ fun NutritionHomeScreen(
     val weeklyCaloriesMap by viewModel.weeklyCaloriesState.collectAsState()
     val mealFoodsMap by viewModel.mealFoods.collectAsState()
     val mealAnalysisLoading by viewModel.mealAnalysisLoading.collectAsState()
+    val maintenanceCalories by viewModel.maintenanceCalories.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -140,6 +141,12 @@ fun NutritionHomeScreen(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White
+                    )
+                    Text(
+                        text = "TDEE: $maintenanceCalories kcal",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF00E5FF)
                     )
                 }
             }

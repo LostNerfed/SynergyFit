@@ -16,7 +16,11 @@ data class FitSettings(
     val targetProtein: Int = 140,
     val targetCarbs: Int = 300,
     val targetFat: Int = 70,
-    val activeSessionId: Int? = null
+    val activeSessionId: Int? = null,
+    val gender: String = "Hombre",
+    val age: Int = 25,
+    val heightCm: Double = 170.0,
+    val activityLevel: String = "Sedentario"
 ) : Serializable
 
 @Entity(tableName = "routines")

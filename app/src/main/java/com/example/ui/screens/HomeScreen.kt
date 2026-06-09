@@ -53,8 +53,10 @@ fun HomeScreen(
     onStartCustomWorkout: () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
+    val activeLogs by viewModel.activeLogs.collectAsState()
     val settings by viewModel.settingsState.collectAsState()
     val chatHistory by viewModel.chatHistory.collectAsState()
+    val maintenanceCalories by viewModel.maintenanceCalories.collectAsState()
     val chatLoading by viewModel.chatLoading.collectAsState()
     val selectedDateMeals by viewModel.selectedDateMeals.collectAsState()
     val routines by viewModel.routines.collectAsState()
@@ -211,8 +213,9 @@ fun HomeScreen(
                                 Text(text = "kcal", fontSize = 10.sp, color = TextSecundario)
                             }
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(text = "Calorías", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextSecundario)
+                        Text(text = "TDEE: $maintenanceCalories", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF00E5FF))
                     }
 
                     // Tarjeta B: Racha y Volumen (1x1)
@@ -663,6 +666,19 @@ fun CoachSetupContent(
     var apiKeyInput by remember { mutableStateOf(settings.apiKey) }
     var selectedGoal by remember { mutableStateOf(settings.fitnessGoal) }
     var targetCaloriesInput by remember { mutableStateOf(settings.targetCalories.toString()) }
+    var gender by remember { mutableStateOf(settings.gender) }
+    var ageStr by remember { mutableStateOf(settings.age.toString()) }
+    var heightStr by remember { mutableStateOf(settings.heightCm.toString()) }
+    var activityLevel by remember { mutableStateOf(settings.activityLevel) }
+    var activityExpanded by remember { mutableStateOf(false) }
+
+    val activityOptions = listOf(
+        "Sedentario (0 entrenamientos/sem)",
+        "Ligero (1-3 entrenamientos/sem)",
+        "Moderado (3-5 entrenamientos/sem)",
+        "Activo (6-7 entrenamientos/sem)",
+        "Muy Activo (Doble turno o trabajo físico exigente)"
+    )
 
     val goalsList = listOf("Hipertrofia", "Pérdida de grasa", "Fuerza máxima", "Resistencia muscular", "Recomposición física", "Salud General")
     val providers = listOf("Gemini", "DeepSeek", "Groq")
@@ -824,15 +840,129 @@ fun CoachSetupContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Gender selector
+        Text(text = "Género", fontSize = 13.sp, color = TextSecundario)
+        Spacer(modifier = Modifier.height(6.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(if (gender == "Hombre") Color.White.copy(alpha = 0.97f) else Color.Transparent, RoundedCornerShape(8.dp))
+                    .border(1.dp, if (gender == "Hombre") Color.White.copy(alpha = 0.97f) else BorderColor, RoundedCornerShape(8.dp))
+                    .clickable { gender = "Hombre" }
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Hombre", color = if (gender == "Hombre") Color.Black else Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(if (gender == "Mujer") Color.White.copy(alpha = 0.97f) else Color.Transparent, RoundedCornerShape(8.dp))
+                    .border(1.dp, if (gender == "Mujer") Color.White.copy(alpha = 0.97f) else BorderColor, RoundedCornerShape(8.dp))
+                    .clickable { gender = "Mujer" }
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Mujer", color = if (gender == "Mujer") Color.Black else Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Age and Height fields
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = "Edad", fontSize = 13.sp, color = TextSecundario)
+                Spacer(modifier = Modifier.height(6.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth().liquidGlassModifier(RoundedCornerShape(12.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    androidx.compose.foundation.text.BasicTextField(
+                        value = ageStr,
+                        onValueChange = { ageStr = it.filter { char -> char.isDigit() }.take(3) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        textStyle = LocalTextStyle.current.copy(color = Color.White, fontSize = 14.sp),
+                        cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = "Estatura (cm)", fontSize = 13.sp, color = TextSecundario)
+                Spacer(modifier = Modifier.height(6.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth().liquidGlassModifier(RoundedCornerShape(12.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    androidx.compose.foundation.text.BasicTextField(
+                        value = heightStr,
+                        onValueChange = { heightStr = it.filter { char -> char.isDigit() || char == '.' }.take(5) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        textStyle = LocalTextStyle.current.copy(color = Color.White, fontSize = 14.sp),
+                        cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Activity level dropdown
+        Text(text = "Nivel de Actividad Semanal", fontSize = 13.sp, color = TextSecundario)
+        Spacer(modifier = Modifier.height(6.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .liquidGlassModifier(RoundedCornerShape(12.dp))
+                .clickable { activityExpanded = !activityExpanded }
+                .padding(16.dp)
+        ) {
+            Text(text = activityLevel, color = Color.White, fontSize = 13.sp)
+            DropdownMenu(
+                expanded = activityExpanded,
+                onDismissRequest = { activityExpanded = false },
+                modifier = Modifier.background(Color(0xFF0D1B2A))
+            ) {
+                activityOptions.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option, color = Color.White, fontSize = 12.sp) },
+                        onClick = {
+                            activityLevel = option
+                            activityExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Button(
             onClick = {
                 val cal = targetCaloriesInput.toIntOrNull() ?: settings.targetCalories
+                val ageInt = ageStr.toIntOrNull() ?: settings.age
+                val heightDouble = heightStr.toDoubleOrNull() ?: settings.heightCm
+
                 onSave(
                     settings.copy(
                         iaProvider = selectedProvider,
                         apiKey = apiKeyInput,
                         fitnessGoal = selectedGoal,
-                        targetCalories = cal
+                        targetCalories = cal,
+                        gender = gender,
+                        age = ageInt,
+                        heightCm = heightDouble,
+                        activityLevel = activityLevel
                     )
                 )
             },

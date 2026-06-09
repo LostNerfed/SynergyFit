@@ -16,7 +16,7 @@ import androidx.room.RoomDatabase
         Food::class,
         Exercise::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -30,6 +30,15 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun exerciseDao(): ExerciseDao
 
     companion object {
+        val MIGRATION_2_3 = object : androidx.room.migration.Migration(2, 3) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE fit_settings ADD COLUMN gender TEXT NOT NULL DEFAULT 'Hombre'")
+                db.execSQL("ALTER TABLE fit_settings ADD COLUMN age INTEGER NOT NULL DEFAULT 25")
+                db.execSQL("ALTER TABLE fit_settings ADD COLUMN heightCm REAL NOT NULL DEFAULT 170.0")
+                db.execSQL("ALTER TABLE fit_settings ADD COLUMN activityLevel TEXT NOT NULL DEFAULT 'Sedentario'")
+            }
+        }
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
@@ -39,7 +48,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "synergyfit_database"
-                ).build()
+                )
+                .addMigrations(MIGRATION_2_3)
+                .build()
                 INSTANCE = instance
                 instance
             }
