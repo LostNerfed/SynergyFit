@@ -264,7 +264,7 @@ fun SettingsScreen(
         if (showCoachSetupSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showCoachSetupSheet = false },
-                containerColor = Color(0xF0040A18),
+                containerColor = Color(0xFA040A18),
                 dragHandle = { BottomSheetDefaults.DragHandle(color = BorderColor) }
             ) {
                 CoachSetupContent(
@@ -300,7 +300,7 @@ fun SettingsScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color(0xF0040A18),
+                containerColor = Color(0xFA040A18),
                 titleContentColor = Color.White,
                 textContentColor = Color.White
             )

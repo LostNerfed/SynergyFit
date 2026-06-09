@@ -467,7 +467,7 @@ fun PlanDaysScreen(
                             Text(text = "Cancelar", color = TextSecundario)
                         }
                     },
-                    containerColor = Color(0xF0040A18),
+                    containerColor = Color(0xFA040A18),
                     titleContentColor = Color.White,
                     textContentColor = Color.White
                 )
@@ -760,7 +760,7 @@ fun PlanDaysScreen(
                             Text(text = "Aplicar", color = TextSecundario)
                         }
                     },
-                    containerColor = Color(0xF0040A18),
+                    containerColor = Color(0xFA040A18),
                     titleContentColor = Color.White,
                     textContentColor = Color.White
                 )
@@ -942,7 +942,7 @@ fun PlanDaysScreen(
                     Text(text = "Cancelar", color = TextSecundario)
                 }
             },
-            containerColor = Color(0xF0040A18),
+            containerColor = Color(0xFA040A18),
             titleContentColor = Color.White,
             textContentColor = Color.White
         )
@@ -1034,7 +1034,7 @@ fun RoutineRowItem(
                 dismissButton = {
                     TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancelar", color = Color.White) }
                 },
-                containerColor = Color(0xF0040A18)
+                containerColor = Color(0xFA040A18)
             )
         }
 

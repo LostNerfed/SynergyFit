@@ -422,7 +422,7 @@ fun ActiveWorkoutScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color(0xF0040A18),
+                containerColor = Color(0xFA040A18),
                 titleContentColor = Color.White,
                 textContentColor = Color.White
             )
@@ -452,7 +452,7 @@ fun ActiveWorkoutScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color(0xF0040A18),
+                containerColor = Color(0xFA040A18),
                 titleContentColor = Color.White,
                 textContentColor = Color.White
             )
@@ -598,7 +598,7 @@ fun ActiveWorkoutScreen(
                     }
                 },
                 shape = RoundedCornerShape(20.dp),
-                containerColor = Color(0xF0040A18),
+                containerColor = Color(0xFA040A18),
                 titleContentColor = Color.White,
                 textContentColor = Color.White
             )

@@ -240,7 +240,7 @@ fun HomeScreen(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(text = "Calorías", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextSecundario)
-                        Text(text = "TDEE: $maintenanceCalories", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF00E5FF))
+                        Text(text = "Calorías de Mantenimiento: $maintenanceCalories", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF00E5FF))
                     }
 
                     // Tarjeta B: Racha y Volumen (1x1)
@@ -646,7 +646,7 @@ fun HomeScreen(
         if (showPersonalizeSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showPersonalizeSheet = false },
-                containerColor = Color(0xF0040A18),
+                containerColor = Color(0xFA040A18),
                 dragHandle = { BottomSheetDefaults.DragHandle(color = BorderColor) }
             ) {
                 CoachSetupContent(
@@ -663,7 +663,7 @@ fun HomeScreen(
         if (showStartWorkoutSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showStartWorkoutSheet = false },
-                containerColor = Color(0xF0040A18),
+                containerColor = Color(0xFA040A18),
                 dragHandle = { BottomSheetDefaults.DragHandle(color = BorderColor) }
             ) {
                 StartWorkoutMenuContent(
@@ -684,7 +684,7 @@ fun HomeScreen(
         if (showProfileSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showProfileSheet = false },
-                containerColor = Color(0xF0040A18),
+                containerColor = Color(0xFA040A18),
                 dragHandle = { BottomSheetDefaults.DragHandle(color = BorderColor) }
             ) {
                 ProfileSetupContent(
@@ -922,6 +922,7 @@ fun ProfileSetupContent(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
+            .verticalScroll(androidx.compose.foundation.rememberScrollState())
     ) {
         Text(
             text = "Perfil Físico",
@@ -930,7 +931,7 @@ fun ProfileSetupContent(
             color = Color.White
         )
         Text(
-            text = "Usamos esta información para calcular tu TDEE y estimar tus calorías de mantenimiento.",
+            text = "Usamos esta información para calcular tus calorías de mantenimiento reales.",
             fontSize = 12.sp,
             color = TextSecundario
         )
@@ -1083,6 +1084,7 @@ fun StartWorkoutMenuContent(
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(horizontal = 24.dp, vertical = 16.dp)
+            .verticalScroll(androidx.compose.foundation.rememberScrollState())
     ) {
         Text(
             text = "Iniciar Sesión de Entrenamiento",
@@ -1162,13 +1164,12 @@ fun StartWorkoutMenuContent(
                 )
             }
         } else {
-            LazyColumn(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 240.dp),
+                    .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(routines) { routine ->
+                routines.forEach { routine ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

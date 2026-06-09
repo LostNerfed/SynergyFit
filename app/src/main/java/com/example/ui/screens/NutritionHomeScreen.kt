@@ -143,7 +143,7 @@ fun NutritionHomeScreen(
                         color = Color.White
                     )
                     Text(
-                        text = "TDEE: $maintenanceCalories kcal",
+                        text = "Mantenimiento: $maintenanceCalories kcal",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF00E5FF)
