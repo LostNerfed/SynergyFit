@@ -706,11 +706,8 @@ fun CoachSetupContent(
 ) {
     var selectedProvider by remember { mutableStateOf(settings.iaProvider) }
     var apiKeyInput by remember { mutableStateOf(settings.apiKey) }
-    var selectedGoal by remember { mutableStateOf(settings.fitnessGoal) }
-    var targetCaloriesInput by remember { mutableStateOf(settings.targetCalories.toString()) }
 
-    val goalsList = listOf("Hipertrofia", "Pérdida de grasa", "Fuerza máxima", "Resistencia muscular", "Recomposición física", "Salud General")
-    val providers = listOf("Gemini", "DeepSeek", "Groq")
+    val providers = listOf("Gemini", "Groq", "DeepSeek", "OpenAI")
 
     Column(
         modifier = Modifier
@@ -800,85 +797,14 @@ fun CoachSetupContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Fitness Goal Selector
-        Text(text = "Objetivo Fitness Principal", fontSize = 13.sp, color = TextSecundario)
-        Spacer(modifier = Modifier.height(6.dp))
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            goalsList.forEach { goal ->
-                val isSelected = goal == selectedGoal
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            if (isSelected) Color.White.copy(alpha = 0.97f) else Color.Transparent,
-                            RoundedCornerShape(8.dp)
-                        )
-                        .border(
-                            1.dp,
-                            if (isSelected) Color.White.copy(alpha = 0.97f) else BorderColor,
-                            RoundedCornerShape(8.dp)
-                        )
-                        .liquidGlassModifier(RoundedCornerShape(12.dp))
-                        .bounceClick { selectedGoal = goal }
-                        .padding(vertical = 12.dp, horizontal = 16.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Text(
-                        text = goal,
-                        color = if (isSelected) Color.Black else Color.White,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Target Calories Input
-        Text(text = "Meta de Calorías Diarias (kcal)", fontSize = 13.sp, color = TextSecundario)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp)
-                .liquidGlassModifier(RoundedCornerShape(12.dp))
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            if (targetCaloriesInput.isEmpty()) {
-                Text("Ej. 2500", color = TextSecundario, fontSize = 12.sp)
-            }
-            androidx.compose.foundation.text.BasicTextField(
-                value = targetCaloriesInput,
-                onValueChange = { targetCaloriesInput = it },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                textStyle = LocalTextStyle.current.copy(
-                    color = Color.White,
-                    fontSize = 14.sp
-                ),
-                cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
-                modifier = Modifier.fillMaxWidth().testTag("target_calories_field")
-            )
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                val cal = targetCaloriesInput.toIntOrNull() ?: settings.targetCalories
-
                 onSave(
                     settings.copy(
                         iaProvider = selectedProvider,
-                        apiKey = apiKeyInput,
-                        fitnessGoal = selectedGoal,
-                        targetCalories = cal
+                        apiKey = apiKeyInput
                     )
                 )
             },
@@ -907,6 +833,12 @@ fun ProfileSetupContent(
     var gender by remember { mutableStateOf(settings.gender) }
     var ageStr by remember { mutableStateOf(settings.age.toString()) }
     var heightStr by remember { mutableStateOf(settings.heightCm.toString()) }
+    var weightStr by remember { mutableStateOf(settings.bodyWeight.toString()) }
+    var targetCaloriesStr by remember { mutableStateOf(if (settings.targetCalories > 0) settings.targetCalories.toString() else "") }
+    
+    val goalsList = listOf("Hipertrofia / Ganar Músculo", "Pérdida de Grasa / Definición", "Fuerza y Rendimiento", "Mantenimiento / Salud General")
+    var selectedGoal by remember { mutableStateOf(settings.fitnessGoal) }
+    
     var activityLevel by remember { mutableStateOf(settings.activityLevel) }
     var activityExpanded by remember { mutableStateOf(false) }
 
@@ -936,8 +868,6 @@ fun ProfileSetupContent(
             color = TextSecundario
         )
         
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Gender selector
         Text(text = "Género", fontSize = 13.sp, color = TextSecundario)
         Spacer(modifier = Modifier.height(6.dp))
@@ -971,7 +901,7 @@ fun ProfileSetupContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Age and Height fields
+        // Age, Height, Weight fields
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = "Edad", fontSize = 13.sp, color = TextSecundario)
@@ -1001,6 +931,24 @@ fun ProfileSetupContent(
                     androidx.compose.foundation.text.BasicTextField(
                         value = heightStr,
                         onValueChange = { heightStr = it.filter { char -> char.isDigit() || char == '.' }.take(5) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        textStyle = LocalTextStyle.current.copy(color = Color.White, fontSize = 14.sp),
+                        cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = "Peso (kg/lb)", fontSize = 13.sp, color = TextSecundario)
+                Spacer(modifier = Modifier.height(6.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth().liquidGlassModifier(RoundedCornerShape(12.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    androidx.compose.foundation.text.BasicTextField(
+                        value = weightStr,
+                        onValueChange = { weightStr = it.filter { char -> char.isDigit() || char == '.' }.take(5) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         textStyle = LocalTextStyle.current.copy(color = Color.White, fontSize = 14.sp),
@@ -1042,17 +990,83 @@ fun ProfileSetupContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+        
+        // Target Calories
+        Text(text = "Meta Calorías Diarias (kcal)", fontSize = 13.sp, color = TextSecundario)
+        Spacer(modifier = Modifier.height(6.dp))
+        Box(
+            modifier = Modifier.fillMaxWidth().liquidGlassModifier(RoundedCornerShape(12.dp)).padding(horizontal = 16.dp, vertical = 14.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            if (targetCaloriesStr.isEmpty()) {
+                Text("Ej. 2500", color = TextSecundario, fontSize = 12.sp)
+            }
+            androidx.compose.foundation.text.BasicTextField(
+                value = targetCaloriesStr,
+                onValueChange = { targetCaloriesStr = it.filter { char -> char.isDigit() }.take(4) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                textStyle = LocalTextStyle.current.copy(color = Color.White, fontSize = 14.sp),
+                cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Fitness Goal Selector
+        Text(text = "Objetivo Fitness Principal", fontSize = 13.sp, color = TextSecundario)
+        Spacer(modifier = Modifier.height(6.dp))
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            goalsList.forEach { goal ->
+                val isSelected = goal == selectedGoal
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            if (isSelected) Color.White.copy(alpha = 0.97f) else Color.Transparent,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .border(
+                            1.dp,
+                            if (isSelected) Color.White.copy(alpha = 0.97f) else BorderColor,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .liquidGlassModifier(RoundedCornerShape(12.dp))
+                        .bounceClick { selectedGoal = goal }
+                        .padding(vertical = 12.dp, horizontal = 16.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(
+                        text = goal,
+                        color = if (isSelected) Color.Black else Color.White,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
                 val ageInt = ageStr.toIntOrNull() ?: settings.age
                 val heightDouble = heightStr.toDoubleOrNull() ?: settings.heightCm
+                val weightDouble = weightStr.toDoubleOrNull() ?: settings.bodyWeight
+                val tCals = targetCaloriesStr.toIntOrNull() ?: settings.targetCalories
 
                 onSave(
                     settings.copy(
                         gender = gender,
                         age = ageInt,
                         heightCm = heightDouble,
+                        bodyWeight = weightDouble,
+                        targetCalories = tCals,
+                        fitnessGoal = selectedGoal,
                         activityLevel = activityLevel
                     )
                 )

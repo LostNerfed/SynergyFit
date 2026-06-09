@@ -27,7 +27,7 @@ import com.example.ui.theme.TextSecundario
 
 @Composable
 fun AuthScreen(
-    onLoginSuccess: (String, Boolean, String, Int, Double, String) -> Unit
+    onLoginSuccess: (name: String, isLbs: Boolean, gender: String, age: Int, height: Double, activity: String, weight: Double, targetCals: Int, fitnessGoal: String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
@@ -46,6 +46,17 @@ fun AuthScreen(
         "Activo (6-7 entrenamientos/sem)",
         "Muy Activo (Doble turno o trabajo físico exigente)"
     )
+
+    var weightStr by remember { mutableStateOf("") }
+    var targetCaloriesStr by remember { mutableStateOf("") }
+    
+    val goalsList = listOf(
+        "Hipertrofia / Ganar Músculo", 
+        "Pérdida de Grasa / Definición", 
+        "Fuerza y Rendimiento", 
+        "Mantenimiento / Salud General"
+    )
+    var selectedGoal by remember { mutableStateOf(goalsList[0]) }
 
     Box(
         modifier = Modifier
@@ -243,6 +254,48 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Weight and Target Calories fields
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = weightStr,
+                    onValueChange = { weightStr = it.filter { char -> char.isDigit() || char == '.' }.take(5) },
+                    placeholder = { Text(if (isLbs) "Peso (lbs)" else "Peso (kg)", color = TextSecundario, fontSize = 12.sp) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.weight(1f).liquidGlassModifier(RoundedCornerShape(12.dp)),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        cursorColor = Color.White,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField(
+                    value = targetCaloriesStr,
+                    onValueChange = { targetCaloriesStr = it.filter { char -> char.isDigit() }.take(4) },
+                    placeholder = { Text("Meta Calorías", color = TextSecundario, fontSize = 12.sp) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.weight(1f).liquidGlassModifier(RoundedCornerShape(12.dp)),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        cursorColor = Color.White,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             // Activity level dropdown logic using Box + border
             Box(
                 modifier = Modifier
@@ -269,12 +322,49 @@ fun AuthScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Fitness Goal Selector
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                goalsList.forEach { goal ->
+                    val isSelected = goal == selectedGoal
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                if (isSelected) Color.White.copy(alpha = 0.97f) else Color.Transparent,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .border(
+                                1.dp,
+                                if (isSelected) Color.White.copy(alpha = 0.97f) else BorderColor,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .clickable { selectedGoal = goal }
+                            .padding(vertical = 12.dp, horizontal = 16.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Text(
+                            text = goal,
+                            color = if (isSelected) Color.Black else Color.White,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
                     val ageInt = ageStr.toIntOrNull() ?: 0
                     val heightDouble = heightStr.toDoubleOrNull() ?: 0.0
+                    val weightDouble = weightStr.toDoubleOrNull() ?: 0.0
+                    val targetCals = targetCaloriesStr.toIntOrNull() ?: 0
 
                     if (name.trim().isEmpty()) {
                         error = "Por favor introduce un nombre válido"
@@ -282,8 +372,12 @@ fun AuthScreen(
                         error = "Por favor introduce una edad válida"
                     } else if (heightDouble <= 50.0 || heightDouble > 250.0) {
                         error = "Por favor introduce una altura válida (cm)"
+                    } else if (weightDouble <= 20.0 || weightDouble > 300.0) {
+                        error = "Por favor introduce un peso válido"
+                    } else if (targetCals <= 500 || targetCals > 8000) {
+                        error = "Por favor introduce una meta de calorías válida"
                     } else {
-                        onLoginSuccess(name.trim(), isLbs, gender, ageInt, heightDouble, activityLevel)
+                        onLoginSuccess(name.trim(), isLbs, gender, ageInt, heightDouble, activityLevel, weightDouble, targetCals, selectedGoal)
                     }
                 },
                 modifier = Modifier

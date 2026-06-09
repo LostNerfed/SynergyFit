@@ -206,7 +206,7 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     // Auth and settings helper
-    fun loginLocalUser(name: String, isLbsPref: Boolean, gender: String, age: Int, heightCm: Double, activityLevel: String) {
+    fun loginLocalUser(name: String, isLbsPref: Boolean, gender: String, age: Int, heightCm: Double, activityLevel: String, weightKg: Double, targetCalories: Int, fitnessGoal: String) {
         viewModelScope.launch {
             val current = settingsState.value
             val updated = current.copy(
@@ -214,7 +214,10 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
                 gender = gender,
                 age = age,
                 heightCm = heightCm,
-                activityLevel = activityLevel
+                activityLevel = activityLevel,
+                bodyWeight = weightKg,
+                targetCalories = targetCalories,
+                fitnessGoal = fitnessGoal
             )
             repository.saveSettings(updated)
             
