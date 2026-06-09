@@ -64,6 +64,7 @@ fun HomeScreen(
     val sessions by viewModel.sessions.collectAsState()
 
     var showPersonalizeSheet by remember { mutableStateOf(false) }
+    var showProfileSheet by remember { mutableStateOf(false) }
     var showStartWorkoutSheet by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
@@ -99,9 +100,25 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = { showProfileSheet = true },
+                            modifier = Modifier
+                                .background(Color(0xFF00E5FF).copy(alpha = 0.2f), CircleShape)
+                                .border(1.dp, Color(0xFF00E5FF).copy(alpha = 0.5f), CircleShape)
+                                .size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Perfil Físico",
+                                tint = Color(0xFF00E5FF),
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Hola, ${settings.username}",
-                            fontSize = 26.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             style = androidx.compose.ui.text.TextStyle(
                                 brush = androidx.compose.ui.graphics.Brush.linearGradient(
@@ -109,6 +126,7 @@ fun HomeScreen(
                                 )
                             )
                         )
+                    }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         // Contador Mensual de Entrenamientos
@@ -654,6 +672,23 @@ fun HomeScreen(
                 )
             }
         }
+
+        // Bottom Sheet: Profile Setup
+        if (showProfileSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showProfileSheet = false },
+                containerColor = Color(0xF0040A18),
+                dragHandle = { BottomSheetDefaults.DragHandle(color = BorderColor) }
+            ) {
+                ProfileSetupContent(
+                    settings = settings,
+                    onSave = { updated ->
+                        viewModel.updateSettings(updated)
+                        showProfileSheet = false
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -666,19 +701,6 @@ fun CoachSetupContent(
     var apiKeyInput by remember { mutableStateOf(settings.apiKey) }
     var selectedGoal by remember { mutableStateOf(settings.fitnessGoal) }
     var targetCaloriesInput by remember { mutableStateOf(settings.targetCalories.toString()) }
-    var gender by remember { mutableStateOf(settings.gender) }
-    var ageStr by remember { mutableStateOf(settings.age.toString()) }
-    var heightStr by remember { mutableStateOf(settings.heightCm.toString()) }
-    var activityLevel by remember { mutableStateOf(settings.activityLevel) }
-    var activityExpanded by remember { mutableStateOf(false) }
-
-    val activityOptions = listOf(
-        "Sedentario (0 entrenamientos/sem)",
-        "Ligero (1-3 entrenamientos/sem)",
-        "Moderado (3-5 entrenamientos/sem)",
-        "Activo (6-7 entrenamientos/sem)",
-        "Muy Activo (Doble turno o trabajo físico exigente)"
-    )
 
     val goalsList = listOf("Hipertrofia", "Pérdida de grasa", "Fuerza máxima", "Resistencia muscular", "Recomposición física", "Salud General")
     val providers = listOf("Gemini", "DeepSeek", "Groq")
@@ -838,8 +860,74 @@ fun CoachSetupContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        Button(
+            onClick = {
+                val cal = targetCaloriesInput.toIntOrNull() ?: settings.targetCalories
+
+                onSave(
+                    settings.copy(
+                        iaProvider = selectedProvider,
+                        apiKey = apiKeyInput,
+                        fitnessGoal = selectedGoal,
+                        targetCalories = cal
+                    )
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .testTag("save_coach_setup_button"),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text("Guardar Cambios", fontWeight = FontWeight.Bold)
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+    }
+}
+
+@Composable
+fun ProfileSetupContent(
+    settings: com.example.data.database.FitSettings,
+    onSave: (com.example.data.database.FitSettings) -> Unit
+) {
+    var gender by remember { mutableStateOf(settings.gender) }
+    var ageStr by remember { mutableStateOf(settings.age.toString()) }
+    var heightStr by remember { mutableStateOf(settings.heightCm.toString()) }
+    var activityLevel by remember { mutableStateOf(settings.activityLevel) }
+    var activityExpanded by remember { mutableStateOf(false) }
+
+    val activityOptions = listOf(
+        "Sedentario (0 entrenamientos/sem)",
+        "Ligero (1-3 entrenamientos/sem)",
+        "Moderado (3-5 entrenamientos/sem)",
+        "Activo (6-7 entrenamientos/sem)",
+        "Muy Activo (Doble turno o trabajo físico exigente)"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+    ) {
+        Text(
+            text = "Perfil Físico",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+        Text(
+            text = "Usamos esta información para calcular tu TDEE y estimar tus calorías de mantenimiento.",
+            fontSize = 12.sp,
+            color = TextSecundario
+        )
+        
         Spacer(modifier = Modifier.height(16.dp))
 
         // Gender selector
@@ -949,16 +1037,11 @@ fun CoachSetupContent(
 
         Button(
             onClick = {
-                val cal = targetCaloriesInput.toIntOrNull() ?: settings.targetCalories
                 val ageInt = ageStr.toIntOrNull() ?: settings.age
                 val heightDouble = heightStr.toDoubleOrNull() ?: settings.heightCm
 
                 onSave(
                     settings.copy(
-                        iaProvider = selectedProvider,
-                        apiKey = apiKeyInput,
-                        fitnessGoal = selectedGoal,
-                        targetCalories = cal,
                         gender = gender,
                         age = ageInt,
                         heightCm = heightDouble,
@@ -968,8 +1051,7 @@ fun CoachSetupContent(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
-                .testTag("save_coach_setup_button"),
+                .height(48.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White,
                 contentColor = Color.Black
@@ -978,7 +1060,8 @@ fun CoachSetupContent(
         ) {
             Text("Guardar Cambios", fontWeight = FontWeight.Bold)
         }
-        Spacer(modifier = Modifier.height(16.dp))
+
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
