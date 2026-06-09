@@ -100,7 +100,10 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
                         IconButton(
                             onClick = { showProfileSheet = true },
                             modifier = Modifier
@@ -118,8 +121,10 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Hola, ${settings.username}",
-                            fontSize = 22.sp,
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                             style = androidx.compose.ui.text.TextStyle(
                                 brush = androidx.compose.ui.graphics.Brush.linearGradient(
                                     colors = listOf(Color.White, Color(0xFF00E5FF))
@@ -127,6 +132,8 @@ fun HomeScreen(
                             )
                         )
                     }
+                    
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         // Contador Mensual de Entrenamientos
@@ -141,10 +148,10 @@ fun HomeScreen(
                             modifier = Modifier
                                 .background(Color(0xFF00E676).copy(alpha = 0.15f), RoundedCornerShape(12.dp))
                                 .border(1.dp, Color(0xFF00E676).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                                .padding(horizontal = 6.dp, vertical = 6.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "$monthlyWorkouts en el mes", color = Color(0xFF00E676), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text(text = "$monthlyWorkouts/mes", color = Color(0xFF00E676), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
 
                         IconButton(
